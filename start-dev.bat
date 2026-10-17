@@ -5,7 +5,7 @@ echo   AI Infinite Canvas - starting dev server
 echo   Keep this window OPEN while using the app.
 echo ============================================
 echo.
-start "" powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 5; Start-Process 'http://localhost:5173'"
+start "" powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 5; Start-Process 'http://localhost:5180'"
 call npm.cmd run dev
 echo.
 echo ============================================

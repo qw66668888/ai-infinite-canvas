@@ -29,7 +29,7 @@ npm install
 npm run dev
 ```
 
-打开 http://localhost:5173 ，左上角 ⚙ 填写接口配置。
+打开 http://localhost:5180 ，左上角 ⚙ 填写接口配置。
 
 Windows 也可以双击 `start-dev.bat`，保持窗口开启即可。
 
