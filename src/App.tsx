@@ -314,20 +314,6 @@ export function App() {
         }}
       />
 
-      {shapeCount === 0 && (
-        <div className="empty-hint">
-          <div className="empty-card">
-            <div className="empty-title">✨ 从一个想法开始</div>
-            <div className="empty-sub">
-              在左侧输入一句话，AI 会拆成卡片、自动排版，并按从属关系连线。
-            </div>
-            <div className="empty-examples">
-              产品发布 6 周计划 · SWOT 分析 · 读书笔记整理
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="panel">
         <div className="brand">
           <span className="logo-dot" />
