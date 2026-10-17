@@ -299,6 +299,7 @@ export function App() {
     saveSettings(draft);
     setSettings(draft);
     setSettingsOpen(false);
+    setError(null);
   };
 
   return (
