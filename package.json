@@ -1,9 +1,9 @@
 {
   "name": "ai-infinite-canvas",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "description": "Your own open-source AI infinite canvas built on tldraw, powered by any OpenAI-compatible model.",
+  "description": "Open-source AI image-to-image canvas with tldraw and Volcengine Seedream/SeedEdit.",
   "license": "MIT",
   "scripts": {
     "dev": "vite",

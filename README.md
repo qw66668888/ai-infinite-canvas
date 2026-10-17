@@ -1,18 +1,26 @@
-# AI Infinite Canvas（你自己的开源 AI 无限画布）
+# AI 图生图画布（开源）
 
-基于 [tldraw](https://tldraw.dev)（Apache-2.0）+ React + Vite 的无限画布，接入任意 **OpenAI 兼容接口**（火山方舟/豆包、DeepSeek、OpenAI、本地代理等）。输入一句话，AI 自动把内容拆解成结构化便签铺到画布上；可继续选中多张便签让 AI 总结重组，再自由拖拽、连线、编辑。
+基于 [tldraw](https://tldraw.dev) + React + Vite 的无限画布，接入火山方舟豆包 Seedream / SeedEdit 等支持图片编辑的模型。上传原图，写一句改图要求，就能在画布上得到改图结果。
 
-## 功能
-- 界面全中文（面板 + tldraw 画布工具栏），AI 默认输出简体中文便签
-- 无限缩放/平移画布，便签、图形、箭头、手绘（tldraw 原生）
-- AI 一句话生成 4–10 张结构化卡片，自动排版并聚焦
-- **AI 自动连线**：模型返回从属/依赖关系，自动在卡片间画箭头
-- **单卡 AI 改写**：选中一张便签，可扩写 / 精简 / 译英
-- 选中多张便签 → 一键 AI 总结重组
-- **一键导出 PNG**（整张画布，2x 清晰度）、全览、清空
-- 模型设置（Base URL / Key / Model）保存在浏览器本地
-- 画布自动保存到浏览器（localStorage，persistenceKey）
-- 纯前端，可免费部署到 Vercel / Netlify / GitHub Pages
+重点不是“文字生成卡片”：打开后默认进入 **图生图（改图）** 页面。
+
+## 图生图功能
+- 上传、拖入图片，或直接选中画布上的图片作为原图
+- 输入改图指令，例如“把毯面颜色改成白色星空毯，其他内容保持不变”
+- 保持原图比例，支持 2K / 4K 输出
+- 原图与改图结果预览，一键下载、放到画布继续编辑
+- 自动压缩过大的原图，避免接口 10MB 限制
+- 支持 Seedream 5.0 Flash / Pro、SeedEdit 3.0 等图生图模型
+
+> 火山方舟目前最高支持 4K 输出；需要 8K 时，建议下载 4K 结果后再做无损放大。
+
+## 其他功能
+- 无限缩放 / 平移画布，便签、图形、箭头、手绘
+- AI 一句话拆解成结构化卡片并自动连线（附加功能）
+- 单卡 AI 扩写 / 精简 / 译英，多卡总结
+- 导出画布 PNG、全览、清空
+- 接口配置和画布自动保存在浏览器本地
+- 纯前端，可部署到 Vercel / Netlify / GitHub Pages
 
 ## 本地运行
 ```bash
@@ -20,51 +28,63 @@ cd ai-infinite-canvas
 npm install
 npm run dev
 ```
-打开 http://localhost:5173 。左上角 ⚙ 填入你的接口地址、Key、模型名即可（或用 .env）。
 
-## 配置模型（二选一）
+打开 http://localhost:5173 ，左上角 ⚙ 填写接口配置。
 
-方式 A：界面里点 ⚙ 填写（推荐，存在浏览器 localStorage）
-- Base URL：填到 `/v3` 或 `/v1`，不要带 `/chat/completions`
-  - 火山方舟豆包：`https://ark.cn-beijing.volces.com/api/v3`，模型如 `doubao-seed-evolving`
-  - DeepSeek：`https://api.deepseek.com/v1`，模型 `deepseek-chat`
-  - OpenAI：`https://api.openai.com/v1`
-- API key：对应平台的 Key
-- Model：模型/接入点 ID
+Windows 也可以双击 `start-dev.bat`，保持窗口开启即可。
 
-方式 B：`.env`
+## 模型配置
+
+点击左上角 ⚙：
+
+1. **接口地址**：`https://ark.cn-beijing.volces.com/api/v3`
+2. **API Key**：火山方舟 API Key
+3. **图生图模型**：填 Seedream / SeedEdit 的模型 ID 或推理接入点 ID，例如：
+   - `doubao-seedream-5-0-flash-260915`
+   - `doubao-seedream-5-0-pro-260628`
+   - `doubao-seededit-3-0-i2i-250628`
+   - 或你在方舟控制台创建的 `ep-...` 接入点 ID
+4. **文本模型**：只有使用 “AI 卡片” 附加功能时才需要
+
+也可以使用 `.env.local`：
 ```bash
-cp .env.example .env
-# 编辑 VITE_OPENAI_BASE_URL / VITE_OPENAI_API_KEY / VITE_OPENAI_MODEL
+VITE_OPENAI_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
+VITE_OPENAI_API_KEY=你的密钥
+VITE_IMAGE_MODEL=doubao-seedream-5-0-flash-260915
+VITE_OPENAI_MODEL=doubao-seed-2-1-lite-260915
 ```
-> 注意：Vite 的环境变量会打进前端包。自用没问题；若公开部署，建议把 Key 放到你自己的后端/代理，前端只调你的代理（见 src/ai.ts 中的 fetch 地址）。
+
+修改 `.env.local` 后需要重启开发服务器。
+
+## 常见问题
+
+**提示 ModelNotOpen**
+
+账号还没有开通该模型。到火山方舟控制台开通对应模型，或创建该模型的推理接入点，再把 `ep-...` 填进“图生图模型”。
+
+**上传后无法发送**
+
+请使用 JPG / PNG / WebP；单张图片建议不超过 10MB。应用会把最长边压到 4096px，仍保留足够细节。
+
+**结果不能下载 / 放到画布**
+
+部分对象存储结果地址不允许浏览器跨域读取。应用会把结果留在预览区，可以直接“下载”；放画布后保存的图片可能需要在画布中重新导出一次。
 
 ## 构建与部署
 ```bash
-npm run build      # 产物在 dist/
+npm run build
 npm run preview
 ```
-- Vercel / Netlify：导入仓库，框架选 Vite，直接部署。
-- 任意静态服务器托管 `dist/` 即可。
+
+产物在 `dist/`。Vercel / Netlify 导入仓库后选择 Vite 即可。
 
 ## 项目结构
-- `src/App.tsx`：画布与 AI 面板、便签排版
-- `src/ai.ts`：模型调用（OpenAI 兼容，json_object）与设置存取
+- `src/App.tsx`：画布、图生图界面、上传与结果处理
+- `src/ai.ts`：方舟图片编辑接口、错误解析、设置存取
 - `src/styles.css`：界面样式
 
-## 开源到 GitHub
-```bash
-git init
-git add .
-git commit -m "feat: AI infinite canvas on tldraw"
-gh repo create ai-infinite-canvas --public --source=. --push
-```
-需要的话可以直接让 Codex 用已连接的 GitHub 插件帮你建仓并推送。
+## 安全提示
+Vite 的 `VITE_*` 环境变量会进入前端包。自用没问题；公开部署时建议通过自己的后端代理 API，不要把长期密钥直接放在公开静态站点。
 
 ## 许可
-MIT（你的代码）。tldraw 遵循其 Apache-2.0 / 商用许可条款，个人与多数商用场景免费，请以 tldraw 官方许可为准。
-
-## 后续可加（路线图）
-- 节点间自动连线（AI 返回父子关系）
-- 流式生成、编辑单卡（选中卡片 → AI 扩写/翻译）
-- 接多模型、导出 PNG/PDF、多人协作（tldraw sync）
+MIT。tldraw 遵循其 Apache-2.0 / 商用许可条款，请以 tldraw 官方许可为准。
