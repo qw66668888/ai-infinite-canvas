@@ -212,7 +212,7 @@ function imageFromResponse(data: any): string | null {
 }
 
 export async function editImage(
-  imageDataUrl: string,
+  imageDataUrl: string | string[],
   prompt: string,
   s: Settings,
   size = "adaptive"
@@ -221,12 +221,21 @@ export async function editImage(
     throw new Error("请先在 ⚙ 设置里填写图生图模型（SeedEdit / Seedream 的接入点 ID）。");
   }
 
-  const dataUrl = imageDataUrl.startsWith("data:")
-    ? imageDataUrl
-    : imageDataUrl.startsWith("http")
-    ? imageDataUrl
-    : `data:image/jpeg;base64,${imageDataUrl}`;
-  const rawBase64 = dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
+  const rawInputs = Array.isArray(imageDataUrl) ? imageDataUrl : [imageDataUrl];
+  const dataUrls = rawInputs.filter(Boolean).map((input) =>
+    input.startsWith("data:")
+      ? input
+      : input.startsWith("http")
+      ? input
+      : `data:image/jpeg;base64,${input}`
+  );
+  if (dataUrls.length === 0) {
+    throw new Error("这个提示词节点没有连接可用的参考图片。");
+  }
+  const imageValue = dataUrls.length === 1 ? dataUrls[0] : dataUrls;
+  const rawBase64 = dataUrls[0].includes(",")
+    ? dataUrls[0].split(",")[1]
+    : dataUrls[0];
   const selectedSize = size || "adaptive";
   const fallbackSize = selectedSize === "adaptive" ? "2K" : "adaptive";
 
@@ -236,7 +245,7 @@ export async function editImage(
       body: {
         model: s.imageModel,
         prompt,
-        image: dataUrl,
+        image: imageValue,
         size: selectedSize,
         response_format: "url",
         watermark: false,
@@ -247,7 +256,7 @@ export async function editImage(
       body: {
         model: s.imageModel,
         prompt,
-        image: dataUrl,
+        image: imageValue,
         size: fallbackSize,
         response_format: "url",
         watermark: false,
@@ -258,7 +267,7 @@ export async function editImage(
       body: {
         model: s.imageModel,
         prompt,
-        image: [dataUrl],
+        image: dataUrls.length === 1 ? [dataUrls[0]] : dataUrls[0],
         size: fallbackSize,
         response_format: "url",
         watermark: false,
@@ -280,7 +289,7 @@ export async function editImage(
       body: {
         model: s.imageModel,
         prompt,
-        image: dataUrl,
+        image: imageValue,
         size: "adaptive",
         response_format: "b64_json",
         watermark: false,

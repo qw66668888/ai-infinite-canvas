@@ -1,7 +1,7 @@
 @echo off
 cd /d "%~dp0"
 echo ============================================
-echo   AI Infinite Canvas - starting dev server
+echo   AI Workflow Canvas - starting dev server
 echo   Keep this window OPEN while using the app.
 echo ============================================
 echo.
