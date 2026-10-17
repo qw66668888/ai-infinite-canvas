@@ -2,6 +2,7 @@ export type AIItem = {
   title: string;
   detail?: string;
   color?: string;
+  parent?: number;
 };
 
 export type Settings = {
@@ -35,14 +36,15 @@ export function saveSettings(s: Settings) {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
 }
 
-const SYSTEM_PROMPT = `You are a canvas planning assistant.
-Turn the user's request into a set of short sticky-note cards for an infinite whiteboard.
-Return ONLY valid JSON of the form:
-{"items":[{"title":"<=6 words","detail":"one short sentence, optional","color":"one of blue|green|yellow|orange|violet|grey|red"}]}
-Rules:
-- Return 4 to 10 items.
-- Prefer parallel/categorical structure for complex topics; sequential steps for plans.
-- Keep each title concise. No markdown.`;
+const SYSTEM_PROMPT = `你是一个无限白板规划助手。把用户的需求拆解成一组简短的便签卡片，并标出卡片之间的从属/依赖关系。
+只返回合法 JSON，格式严格如下：
+{"items":[{"title":"不超过12个汉字的短标题","detail":"一句话补充说明，可选","color":"blue|green|yellow|orange|violet|grey|red 其中之一","parent":1}]}
+规则：
+- 返回 4 到 10 张卡片。
+- 复杂主题按类别/模块并列展开；计划类需求按先后步骤展开。
+- parent 是“父卡片”的序号（从 1 开始，必须是更早出现的卡片），用于自动连线；没有从属关系就省略该字段。
+- 不要形成环，每个卡片最多一个 parent。
+- 标题和 detail 一律使用简体中文，精炼，不要使用 Markdown。`;
 
 function extractJson(text: string): any {
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
@@ -50,22 +52,29 @@ function extractJson(text: string): any {
   const start = body.indexOf("{");
   const end = body.lastIndexOf("}");
   if (start === -1 || end === -1 || end <= start) {
-    throw new Error("Model did not return JSON: " + text.slice(0, 200));
+    throw new Error("模型没有返回 JSON：" + text.slice(0, 200));
   }
   return JSON.parse(body.slice(start, end + 1));
+}
+
+function endpoint(s: Settings) {
+  return s.baseUrl.replace(/\/$/, "") + "/chat/completions";
+}
+
+function headers(s: Settings) {
+  return {
+    "Content-Type": "application/json",
+    ...(s.apiKey ? { Authorization: `Bearer ${s.apiKey}` } : {}),
+  };
 }
 
 export async function generateNotes(
   prompt: string,
   s: Settings
 ): Promise<AIItem[]> {
-  const url = s.baseUrl.replace(/\/$/, "") + "/chat/completions";
-  const res = await fetch(url, {
+  const res = await fetch(endpoint(s), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(s.apiKey ? { Authorization: `Bearer ${s.apiKey}` } : {}),
-    },
+    headers: headers(s),
     body: JSON.stringify({
       model: s.model,
       temperature: 0.7,
@@ -79,7 +88,7 @@ export async function generateNotes(
 
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
-    throw new Error(`HTTP ${res.status}: ${detail.slice(0, 300)}`);
+    throw new Error(`HTTP ${res.status}：${detail.slice(0, 300)}`);
   }
 
   const data = await res.json();
@@ -92,5 +101,41 @@ export async function generateNotes(
       title: String(i.title),
       detail: i.detail ? String(i.detail) : undefined,
       color: i.color ? String(i.color) : undefined,
+      parent:
+        typeof i.parent === "number" && Number.isFinite(i.parent)
+          ? Math.floor(i.parent)
+          : undefined,
     }));
+}
+
+export async function rewriteText(
+  text: string,
+  instruction: string,
+  s: Settings
+): Promise<string> {
+  const res = await fetch(endpoint(s), {
+    method: "POST",
+    headers: headers(s),
+    body: JSON.stringify({
+      model: s.model,
+      temperature: 0.5,
+      messages: [
+        {
+          role: "system",
+          content:
+            "你是专业的中文文字编辑。只输出改写后的纯文本，不要解释，不要 Markdown 代码块。",
+        },
+        { role: "user", content: `${instruction}\n\n原文：\n${text}` },
+      ],
+    }),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(`HTTP ${res.status}：${detail.slice(0, 300)}`);
+  }
+
+  const data = await res.json();
+  const content: string = data?.choices?.[0]?.message?.content ?? "";
+  return content.trim();
 }

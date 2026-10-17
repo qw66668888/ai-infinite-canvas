@@ -1,5 +1,8 @@
 * { box-sizing: border-box; }
-html, body, #root { margin: 0; height: 100%; font-family: "Segoe UI", system-ui, sans-serif; }
+html, body, #root {
+  margin: 0; height: 100%;
+  font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+}
 
 .app { position: fixed; inset: 0; }
 
@@ -7,9 +10,11 @@ html, body, #root { margin: 0; height: 100%; font-family: "Segoe UI", system-ui,
   position: absolute;
   top: 14px;
   left: 14px;
-  width: 320px;
+  width: 330px;
+  max-height: calc(100% - 28px);
+  overflow-y: auto;
   z-index: 300;
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(8px);
   border: 1px solid #e3e5e8;
   border-radius: 14px;
@@ -63,7 +68,7 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 }
 .chip:hover { background: #e7e9ec; }
 
-.hint { font-size: 11px; color: #8a8f98; }
+.hint { font-size: 11px; color: #8a8f98; line-height: 1.5; }
 
 .error {
   font-size: 12px; color: #b3261e; background: #fdecea;
@@ -72,3 +77,45 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 }
 
 .settings { display: flex; flex-direction: column; gap: 6px; }
+
+/* status */
+.status { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: #666; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
+
+/* selected-note actions */
+.selbox {
+  border: 1px dashed #d7dade; border-radius: 10px; padding: 9px;
+  display: flex; flex-direction: column; gap: 7px; background: #fafbfc;
+}
+.seltext { font-size: 12px; color: #444; line-height: 1.5; }
+
+/* compact action grid */
+.actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.actions button { padding: 7px 6px; font-size: 12px; white-space: nowrap; }
+
+/* busy pill */
+.busy {
+  font-size: 12px; color: #0b5cad; background: #e8f1fd;
+  border: 1px solid #c7ddf7; border-radius: 8px; padding: 8px;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: .65; } 50% { opacity: 1; } }
+
+/* empty-canvas hint */
+.empty-hint {
+  position: absolute; inset: 0; display: flex;
+  align-items: center; justify-content: center;
+  pointer-events: none; z-index: 200;
+}
+.empty-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px dashed #d7dade;
+  border-radius: 18px;
+  padding: 26px 34px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  max-width: 460px;
+}
+.empty-title { font-size: 18px; font-weight: 600; color: #222; margin-bottom: 8px; }
+.empty-sub { font-size: 13px; color: #666; line-height: 1.6; }
+.empty-examples { margin-top: 10px; font-size: 12px; color: #9aa0a6; }
