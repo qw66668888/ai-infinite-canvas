@@ -1,4 +1,15 @@
-export type NodeKind = "image" | "prompt" | "result" | "output";
+export type NodeKind = "image" | "prompt" | "result" | "output" | "video";
+
+export type AnnotationTool = "brush" | "rect";
+
+export type AnnotationPoint = { x: number; y: number };
+
+export type AnnotationStroke = {
+  tool: AnnotationTool;
+  color: string;
+  size: number;
+  points: AnnotationPoint[];
+};
 
 export type WorkflowNode = {
   id: string;
@@ -10,9 +21,29 @@ export type WorkflowNode = {
   title: string;
   subtitle?: string;
   src?: string;
+  annotatedSrc?: string;
+  annotationNote?: string;
+  annotationStrokes?: AnnotationStroke[];
   prompt?: string;
+  preset?:
+    | "commerce-main"
+    | "commerce-main-2"
+    | "commerce-main-3"
+    | "commerce-poster";
+  commerceGroup?: string;
+  outputSize?: string;
   status?: "idle" | "running" | "done";
   accent?: string;
+  videoMode?: "image" | "edit";
+  videoSourceUrl?: string;
+  videoResultUrl?: string;
+  videoTaskId?: string;
+  videoTaskStatus?: string;
+  videoError?: string;
+  resolution?: string;
+  ratio?: string;
+  duration?: number;
+  generateAudio?: boolean;
 };
 
 export type WorkflowEdge = {
@@ -35,7 +66,7 @@ export type WorkflowState = {
   outputSize: string;
 };
 
-const STORAGE_KEY = "ai-workflow-canvas-v3";
+const STORAGE_KEY = "ai-workflow-canvas-v4";
 
 export function uid(prefix = "node") {
   const random =
@@ -83,6 +114,19 @@ export function createNode(
       subtitle: "Output",
       status: "idle",
       accent: "linear-gradient(145deg, #24272d, #111216)",
+    },
+    video: {
+      w: 450,
+      h: 590,
+      title: "AI 视频",
+      subtitle: "Seedance 图生视频",
+      prompt: "让画面中的光线缓慢流动，镜头轻微推进，人物自然呼吸，电影级质感。",
+      status: "idle",
+      videoMode: "image",
+      resolution: "720p",
+      ratio: "adaptive",
+      duration: 5,
+      generateAudio: true,
     },
   };
 
@@ -144,10 +188,16 @@ export function createInitialWorkflow(): WorkflowState {
     h: 320,
     title: "最终输出",
   });
+  const video = createNode("video", 1380, 690, {
+    title: "空间运镜视频",
+    subtitle: "Seedance 图生视频",
+    prompt:
+      "以空间参考图为首帧，镜头缓慢向前推进，暖色灯光轻微流动，人物自然呼吸，电影级摄影质感，画面稳定。",
+  });
 
   return {
     title: "AI 室内人物合成工作流",
-    nodes: [image1, image2, image3, image4, prompt, result, output],
+    nodes: [image1, image2, image3, image4, prompt, result, output, video],
     edges: [
       { id: uid("edge"), from: image1.id, to: prompt.id },
       { id: uid("edge"), from: image2.id, to: prompt.id },
@@ -155,6 +205,8 @@ export function createInitialWorkflow(): WorkflowState {
       { id: uid("edge"), from: image4.id, to: prompt.id },
       { id: uid("edge"), from: prompt.id, to: result.id },
       { id: uid("edge"), from: result.id, to: output.id },
+      { id: uid("edge"), from: image3.id, to: video.id },
+      { id: uid("edge"), from: image4.id, to: video.id },
     ],
     viewport: { x: 40, y: 94, zoom: 0.62 },
     outputSize: "adaptive",
@@ -177,9 +229,25 @@ export function loadWorkflow(): WorkflowState | null {
           ...node,
           x: Number(node.x) || 0,
           y: Number(node.y) || 0,
-          w: Number(node.w) || 260,
-          h: Number(node.h) || 220,
+          w:
+            node.kind === "video"
+              ? Math.max(Number(node.w) || 450, 450)
+              : Number(node.w) || 260,
+          h:
+            node.kind === "video"
+              ? Math.max(Number(node.h) || 590, 590)
+              : Number(node.h) || 220,
           status: node.status === "running" ? "idle" : node.status || "idle",
+          videoMode:
+            node.kind === "video"
+              ? node.videoMode === "edit"
+                ? "edit"
+                : "image"
+              : undefined,
+          resolution: node.resolution || "720p",
+          ratio: node.ratio || "adaptive",
+          duration: Number(node.duration) || 5,
+          generateAudio: node.generateAudio !== false,
         })),
       edges: parsed.edges.filter((edge: any) => edge?.from && edge?.to),
       viewport: {

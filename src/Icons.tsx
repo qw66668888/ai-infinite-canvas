@@ -19,6 +19,8 @@ export type IconName =
   | "copy"
   | "refresh"
   | "grid"
+  | "video"
+  | "edit"
   | "chevron-down"
   | "stop";
 
@@ -96,6 +98,18 @@ const paths: Record<IconName, ReactNode> = {
       <rect x="14" y="3" width="7" height="7" rx="1" />
       <rect x="3" y="14" width="7" height="7" rx="1" />
       <rect x="14" y="14" width="7" height="7" rx="1" />
+    </>
+  ),
+  video: (
+    <>
+      <rect x="3" y="6" width="12" height="12" rx="2.5" />
+      <path d="m15 10 6-3v10l-6-3" />
+    </>
+  ),
+  edit: (
+    <>
+      <path d="M4 20h4l10.2-10.2a2.1 2.1 0 0 0-3-3L5 17v3Z" />
+      <path d="m13.5 6.5 3 3" />
     </>
   ),
   "chevron-down": <path d="m6 9 6 6 6-6" />,

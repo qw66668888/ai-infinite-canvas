@@ -1,0 +1,3406 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>主图排版 · 1440×1440</title>
+    <link rel="icon" href="data:," />
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC",
+          "Source Han Sans SC", sans-serif;
+        background: #0b0d12;
+        color: #eef3fb;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(1000px 600px at 80% -10%, #1b2a45 0%, transparent 60%),
+          radial-gradient(800px 500px at -10% 100%, #2a1530 0%, transparent 60%),
+          #0b0d12;
+      }
+      header {
+        max-width: 1460px;
+        margin: 0 auto;
+        padding: 28px 28px 10px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+      }
+      header h1 { margin: 0; font-size: 26px; letter-spacing: .02em; }
+      header p { margin: 8px 0 0; color: #9aa8bc; font-size: 13px; line-height: 1.7; }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border: 1px solid #2e3b52;
+        border-radius: 999px;
+        color: #b9c8de;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .badge b { color: #7ee7c7; font-weight: 700; }
+      main {
+        max-width: 1460px;
+        margin: 0 auto;
+        padding: 14px 28px 36px;
+        display: grid;
+        grid-template-columns: 390px minmax(0, 1fr);
+        gap: 22px;
+        align-items: start;
+      }
+      .panel, .preview-wrap {
+        background: rgba(20, 24, 33, .9);
+        border: 1px solid #273248;
+        border-radius: 18px;
+        box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      }
+      .panel { padding: 20px; position: sticky; top: 18px; }
+      .upload-zone {
+        border: 1px dashed #3a4a66;
+        border-radius: 14px;
+        padding: 18px;
+        text-align: center;
+        background: rgba(12, 16, 24, .55);
+        transition: .2s;
+      }
+      .upload-zone.drag { border-color: #69dcff; background: rgba(105,220,255,.08); }
+      .upload-zone button {
+        border: 1px solid #3f5679;
+        background: #1b2433;
+        color: #eaf2ff;
+        border-radius: 10px;
+        padding: 10px 18px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .upload-zone p { margin: 10px 0 0; color: #8494aa; font-size: 12px; line-height: 1.6; }
+      .file-name { margin-top: 8px; color: #7ee7c7; font-size: 12px; word-break: break-all; }
+      .save-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+      .save-bar button { border: 1px solid #3c6f5b; background: #143027; color: #8ff0c8; border-radius: 9px; padding: 9px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
+      .save-bar button:disabled { opacity: .55; cursor: wait; }
+      .save-status { color: #7ee7c7; font-size: 11px; line-height: 1.5; }
+      .save-status.warn { color: #ffb0c4; }
+      .panel-title { margin: 18px 0 2px; font-size: 15px; font-weight: 700; color: #dbe7f7; }
+      .panel-title span { margin-left: 8px; font-size: 12px; font-weight: 400; color: #8494aa; }
+      label { display: block; margin-top: 14px; color: #9fb0c7; font-size: 12px; }
+      label span { display: block; margin-bottom: 6px; }
+      input[type="text"], select {
+        width: 100%;
+        border: 1px solid #2f3d55;
+        background: #0f141d;
+        color: #eef3fb;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 13px;
+        outline: none;
+      }
+      input[type="text"]:focus, select:focus { border-color: #69dcff; box-shadow: 0 0 0 3px rgba(105,220,255,.12); }
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .grid2 label { margin-top: 10px; }
+      .banner-row { display: grid; gap: 8px; margin-top: 10px; }
+      .banner-options { display: grid; grid-template-columns: 1fr 1fr 44px 44px; gap: 8px; }
+      .banner-row select { padding: 10px 6px; }
+      .banner-size { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 2px; }
+      .banner-size label { display: grid; grid-template-columns: auto minmax(0, 1fr) 44px; align-items: center; gap: 7px; margin-top: 0; color: #8fa1b9; }
+      .banner-size input[type=range] { width: 100%; accent-color: #c2416b; }
+      .banner-size output { text-align: right; color: #dbe7f7; font-variant-numeric: tabular-nums; font-size: 12px; }
+      .field-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+      .field-head > span { display: inline; margin-bottom: 0; }
+      .clear-btn { flex: none; border: 1px solid #593143; background: #2a1620; color: #ff9fba; border-radius: 7px; padding: 3px 9px; font-size: 11px; line-height: 1.4; cursor: pointer; }
+      .clear-btn:hover { background: #3d1d2a; border-color: #a44662; }
+      .text-with-clear { display: flex; align-items: center; gap: 6px; }
+      .text-with-clear input { flex: 1; min-width: 0; }
+      .banner-actions { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+      .add-banner-btn, .remove-banner-btn { border: 1px solid #3f5679; background: #1b2433; color: #eaf2ff; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+      .add-banner-btn { border-color: #3c6f5b; color: #8ff0c8; }
+      .remove-banner-btn { color: #ffb0c4; border-color: #5a3140; }
+      .add-banner-btn:disabled, .remove-banner-btn:disabled { opacity: .45; cursor: not-allowed; }
+      #bannerCountHint { color: #8494aa; font-size: 11px; }
+      .recolor-box { margin-top: 10px; padding: 12px; border: 1px solid #2f3d55; border-radius: 12px; background: rgba(12,16,24,.45); }
+      .recolor-mode-btn { width: 100%; border: 1px solid #3c6f5b; background: #143027; color: #8ff0c8; border-radius: 9px; padding: 9px 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+      .recolor-mode-btn.active { background: #2a151d; border-color: #a44662; color: #ff9fba; }
+      .recolor-mode-btn:disabled { opacity: .45; cursor: not-allowed; }
+      .recolor-hint { margin-top: 8px; color: #8494aa; font-size: 11px; line-height: 1.6; }
+      .pick-status { margin-top: 8px; padding: 7px 9px; border: 1px solid #31425c; border-radius: 8px; background: #0d1420; color: #9fb0c7; font-size: 11px; line-height: 1.5; }
+      .pick-status.ok { border-color: #3c6f5b; color: #8ff0c8; }
+      .pick-status.warn { border-color: #704052; color: #ffb0c4; }
+      .recolor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+      .recolor-grid label { margin-top: 0; }
+      .recolor-grid label output { display: block; text-align: right; margin-top: 2px; color: #dbe7f7; font-size: 12px; font-variant-numeric: tabular-nums; }
+      .recolor-control { display: grid; grid-template-columns: auto minmax(0, 1fr) 44px; align-items: center; gap: 8px; margin-top: 10px; color: #9fb0c7; font-size: 12px; }
+      .recolor-control input[type=range] { width: 100%; accent-color: #69dcff; }
+      .recolor-control output { text-align: right; color: #dbe7f7; font-size: 12px; font-variant-numeric: tabular-nums; }
+      .recolor-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+      .preset-btn { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #3f5679; background: #0f141d; color: #dbe7f7; border-radius: 999px; padding: 5px 9px; font-size: 11px; cursor: pointer; }
+      .preset-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1px solid rgba(255,255,255,.25); }
+      .recolor-actions { display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+      .recolor-actions button { border: 1px solid #3f5679; background: #1b2433; color: #eaf2ff; border-radius: 8px; padding: 7px 10px; font-size: 12px; cursor: pointer; }
+      .recolor-actions button:disabled { opacity: .45; cursor: not-allowed; }
+      .eraser-toggle { display: flex; align-items: center; gap: 6px; color: #9fb0c7; font-size: 12px; margin: 0; }
+      .eraser-toggle input { margin: 0; accent-color: #69dcff; }
+      .glow-box { border-color: #4a3266; background: rgba(26,15,39,.42); }
+      .glow-box .recolor-mode-btn { border-color: #8054b4; background: #251436; color: #e8ccff; }
+      .glow-box .recolor-mode-btn.active { border-color: #d68b78; background: #2d171f; color: #ffd5ca; }
+      .glow-box .recolor-control input[type=range] { accent-color: #b982ff; }
+      .legacy-box { border-color: #3e5362; background: rgba(11,24,30,.48); }
+      .legacy-box .recolor-mode-btn { border-color: #397f94; background: #102c35; color: #9aedff; }
+      .legacy-box .recolor-mode-btn.active { border-color: #e3a24d; background: #33230f; color: #ffd992; }
+      .legacy-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      .legacy-actions button, .legacy-item-actions button {
+        border: 1px solid #3f5679;
+        background: #1b2433;
+        color: #eaf2ff;
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .legacy-actions button.primary { border-color: #2d8ca8; background: #123745; color: #a9f2ff; font-weight: 700; }
+      .legacy-actions button:disabled, .legacy-item-actions button:disabled { opacity: .45; cursor: not-allowed; }
+      .legacy-list { display: grid; gap: 8px; margin-top: 10px; max-height: 430px; overflow: auto; padding-right: 2px; }
+      .legacy-empty { padding: 12px; border: 1px dashed #34445e; border-radius: 9px; color: #7f90a8; font-size: 11px; line-height: 1.65; text-align: center; }
+      .legacy-item { padding: 9px; border: 1px solid #34445e; border-radius: 10px; background: #0d141d; }
+      .legacy-item.selected { border-color: #69dcff; box-shadow: 0 0 0 2px rgba(105,220,255,.10); }
+      .legacy-item-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; color: #9fb0c7; font-size: 11px; }
+      .legacy-item-head b { color: #dbe7f7; font-size: 12px; }
+      .legacy-item input[type=text] { padding: 8px 9px; font-size: 12px; }
+      .legacy-item-controls { display: grid; grid-template-columns: 40px minmax(0, 1fr) 40px 64px; align-items: center; gap: 6px; margin-top: 7px; color: #8494aa; font-size: 11px; }
+      .legacy-item-controls input[type=color] { width: 100%; height: 32px; }
+      .legacy-item-controls input[type=number] { padding: 7px 6px; border: 1px solid #2f3d55; border-radius: 8px; background: #0f141d; color: #dbe7f7; font-size: 12px; }
+      .legacy-item-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+      .legacy-item-actions button { padding: 6px 8px; font-size: 11px; }
+      .legacy-item-actions button.extract { border-color: #2d8ca8; color: #a9f2ff; }
+      .legacy-item-actions button.pixel { border-color: #9a7430; color: #ffd992; }
+      .legacy-item-actions button.danger { border-color: #593143; color: #ff9fba; }
+      .legacy-pixel-note { padding: 8px 9px; border: 1px dashed #6d5a35; border-radius: 8px; background: rgba(52,38,13,.35); color: #e9cb8e; font-size: 11px; line-height: 1.55; }
+      .legacy-mode-note { margin-top: 9px; padding: 9px 10px; border: 1px solid #3a4b5e; border-radius: 9px; background: rgba(7,13,20,.55); color: #9fb0c7; font-size: 11px; line-height: 1.65; }
+      .legacy-mode-note b.pixel { color: #ffd992; }
+      .legacy-mode-note b.text { color: #a9f2ff; }
+      input[type="color"] {
+        width: 100%;
+        height: 40px;
+        padding: 3px;
+        border: 1px solid #2f3d55;
+        border-radius: 9px;
+        background: #0f141d;
+        cursor: pointer;
+      }
+      input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+      input[type="color"]::-webkit-color-swatch { border: none; border-radius: 5px; }
+      .check { display: flex; align-items: center; gap: 8px; margin-top: 16px; color: #b9c8de; font-size: 13px; }
+      .check input { width: 16px; height: 16px; accent-color: #69dcff; }
+      .actions { display: grid; gap: 10px; margin-top: 18px; }
+      .actions button {
+        border-radius: 11px;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        border: 1px solid #34445e;
+        background: #182031;
+        color: #dbe7f7;
+      }
+      .actions button.primary {
+        background: linear-gradient(135deg, #d92d6b, #6b1235);
+        border-color: #e24d83;
+        color: white;
+        box-shadow: 0 10px 30px rgba(217,45,107,.28);
+      }
+      .actions button:active { transform: translateY(1px); }
+      .preview-wrap { padding: 18px; display: grid; place-items: center; }
+      .preview-stage { position: relative; width: 100%; max-width: 760px; aspect-ratio: 1 / 1; }
+      #preview {
+        display: block;
+        width: 100%;
+        max-width: 760px;
+        aspect-ratio: 1 / 1;
+        height: auto;
+        border-radius: 14px;
+        background: #05070a;
+        box-shadow: 0 18px 60px rgba(0,0,0,.5);
+        touch-action: none;
+        cursor: default;
+      }
+      #glowOverlay {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 14px;
+        pointer-events: none;
+      }
+      .preview-hint { margin-top: 12px; color: #7f90a8; font-size: 12px; line-height: 1.7; text-align: center; }
+      @media (max-width: 980px) {
+        main { grid-template-columns: 1fr; }
+        .panel { position: static; }
+        header { align-items: flex-start; flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>主图排版 · 1440×1440</h1>
+        <p>先在画布生成无字商品图并下载，再上传到这里；文案、横幅和卖点条会自动排版，下载就是成品主图。</p>
+      </div>
+      <div class="badge"><b>V5.1</b> · 安全抠字 / 清晰增强 / 点选改色 · 输出 <b>1440×1440 PNG</b></div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="upload-zone" id="dropZone">
+          <input type="file" id="fileInput" accept="image/*" hidden />
+          <button id="chooseBtn" type="button">上传生成的商品图</button>
+          <p>也可以把图片直接拖进来；建议上传无文字、无 watermark 的商品底图。</p>
+          <div class="file-name" id="fileName"></div>
+        </div>
+        <div class="save-bar">
+          <button type="button" id="saveBtn">保存当前设置</button>
+          <span class="save-status" id="saveStatus">自动保存已开启 · 刷新后自动恢复</span>
+        </div>
+
+        <div class="panel-title">画面清晰度 <span>锐化底图，不改变 1440×1440 输出</span></div>
+        <div class="recolor-box">
+          <div class="recolor-control"><span>清晰增强</span><input type="range" id="imageSharpen" min="0" max="100" value="45" /><output id="imageSharpenOut">45%</output></div>
+          <div class="recolor-presets">
+            <button type="button" class="preset-btn" data-sharpen="0">标准</button>
+            <button type="button" class="preset-btn" data-sharpen="45">清晰</button>
+            <button type="button" class="preset-btn" data-sharpen="80">超清</button>
+          </div>
+          <div class="pick-status" id="imageQualityStatus">上传图片后显示原图分辨率</div>
+        </div>
+
+        <div class="panel-title">旧字抠出 / 擦除 <span>默认按原图像素抠字，保留字体和特效</span></div>
+        <div class="recolor-box legacy-box">
+          <div class="legacy-actions">
+            <button type="button" class="primary" id="legacyOcrBtn" disabled>识别旧文字</button>
+            <button type="button" id="legacySelectBtn" disabled>框选旧文字</button>
+          </div>
+          <div class="legacy-mode-note"><b class="pixel">原样抠字</b>：直接按原图像素抠出，保留原字体、渐变、描边和阴影，抠出后可拖动、缩放、删除。<br><b class="text">识别改字</b>：只用于确实要改文字内容时，会变成普通文字层，字体可能变化。</div>
+          <div class="recolor-control"><span>擦除边距</span><input type="range" id="legacyPadding" min="0" max="16" value="4" /><output id="legacyPaddingOut">4px</output></div>
+          <div class="recolor-control"><span>抠字灵敏度</span><input type="range" id="legacyThreshold" min="10" max="90" value="42" /><output id="legacyThresholdOut">42</output></div>
+          <label class="check"><input type="checkbox" id="legacyEraseSource" /> 抠字后同时擦除原字（只补文字笔画）</label>
+          <label class="check"><input type="checkbox" id="legacyShowMarks" checked /> 在画布上显示旧文字框</label>
+          <div class="pick-status" id="legacyStatus">上传底图后，可自动识别或手动框选旧文字</div>
+          <div class="legacy-list" id="legacyList"><div class="legacy-empty">还没有旧文字项目。点“框选旧文字”后在右侧画布拖一个矩形，再点“原样抠字”；想改文字内容才用“识别旧文字”。</div></div>
+          <div class="recolor-actions">
+            <button type="button" class="primary" id="legacyPixelAllBtn" disabled>全部原样抠字</button>
+            <button type="button" id="legacyEraseAllBtn" disabled>全部识别改字</button>
+            <button type="button" id="legacyClearBtn" disabled>清除全部旧文字处理</button>
+          </div>
+          <div class="recolor-hint">框选后直接点“原样抠字”，默认只抠出、不改动原图；需要去掉原位置旧字时，再点行内“擦除原字”。擦除只补文字笔画，不再整块涂抹。抠字灵敏度越高，留下的底色越少；调完灵敏度后点“重新抠字”应用。</div>
+        </div>
+
+        <div class="panel-title">文案编辑 <span>改完右边实时预览</span></div>
+
+        <label><div class="field-head"><span>主标题第一行</span><button type="button" class="clear-btn" data-clear="headline1">删除</button></div><input type="text" id="headline1" value="原车色双层脚垫" /></label>
+        <label><div class="field-head"><span>主标题第二行（可留空）</span><button type="button" class="clear-btn" data-clear="headline2">删除</button></div><input type="text" id="headline2" value="" /></label>
+        <label><div class="field-head"><span>副标题</span><button type="button" class="clear-btn" data-clear="subline">删除</button></div><input type="text" id="subline" value="原车同色 · 防尘防污 · 防滑耐磨" /></label>
+
+        <div class="panel-title">横幅 / 标签 <span>最多 10 条，可拖动、调宽高</span></div>
+        <div id="bannerList">
+        <div class="banner-row" id="bannerRow1">
+          <div class="text-with-clear"><input type="text" id="banner1Text" value="适用于享界 S9/S9T" placeholder="横幅文字（留空隐藏）" /><button type="button" class="clear-btn" data-clear="banner1Text">删除</button></div>
+          <div class="banner-options">
+            <select id="banner1Style" title="横幅样式"><option value="pill">胶囊</option><option value="bar">横幅</option></select>
+            <select id="banner1Theme" title="颜色预设"><option value="maroon">酒红</option><option value="black">黑色</option><option value="gold">金色</option><option value="custom">自定义</option></select>
+            <input type="color" id="banner1Bg" value="#7a1745" title="横幅底色" />
+            <input type="color" id="banner1TextColor" value="#ffffff" title="横幅文字颜色" />
+          </div><div class=banner-size>
+            <label>宽<input type=range id=banner1Width min=50 max=200 step=5 value=100 /><output id=banner1WidthOut>100%</output></label>
+            <label>高<input type=range id=banner1Height min=50 max=200 step=5 value=100 /><output id=banner1HeightOut>100%</output></label>
+          </div>
+        </div>
+        <div class="banner-row" id="bannerRow2">
+          <div class="text-with-clear"><input type="text" id="banner2Text" value="" placeholder="第二条横幅（可留空）" /><button type="button" class="clear-btn" data-clear="banner2Text">删除</button></div>
+          <div class="banner-options">
+            <select id="banner2Style" title="横幅样式"><option value="pill">胶囊</option><option value="bar" selected>横幅</option></select>
+            <select id="banner2Theme" title="颜色预设"><option value="maroon">酒红</option><option value="black" selected>黑色</option><option value="gold">金色</option><option value="custom">自定义</option></select>
+            <input type="color" id="banner2Bg" value="#1a1f2a" title="横幅底色" />
+            <input type="color" id="banner2TextColor" value="#ffffff" title="横幅文字颜色" />
+          </div><div class=banner-size>
+            <label>宽<input type=range id=banner2Width min=50 max=200 step=5 value=100 /><output id=banner2WidthOut>100%</output></label>
+            <label>高<input type=range id=banner2Height min=50 max=200 step=5 value=100 /><output id=banner2HeightOut>100%</output></label>
+          </div>
+        </div>
+        <div class="banner-row" id="bannerRow3">
+          <div class="text-with-clear"><input type="text" id="banner3Text" value="" placeholder="第三条横幅（可留空）" /><button type="button" class="clear-btn" data-clear="banner3Text">删除</button></div>
+          <div class="banner-options">
+            <select id="banner3Style" title="横幅样式"><option value="pill">胶囊</option><option value="bar" selected>横幅</option></select>
+            <select id="banner3Theme" title="颜色预设"><option value="maroon">酒红</option><option value="black">黑色</option><option value="gold" selected>金色</option><option value="custom">自定义</option></select>
+            <input type="color" id="banner3Bg" value="#b8860b" title="横幅底色" />
+            <input type="color" id="banner3TextColor" value="#ffffff" title="横幅文字颜色" />
+          </div><div class=banner-size>
+            <label>宽<input type=range id=banner3Width min=50 max=200 step=5 value=100 /><output id=banner3WidthOut>100%</output></label>
+            <label>高<input type=range id=banner3Height min=50 max=200 step=5 value=100 /><output id=banner3HeightOut>100%</output></label>
+          </div>
+        </div>
+
+        <div class="banner-actions">
+          <button type="button" class="add-banner-btn" id="addBannerBtn">+ 添加横幅</button>
+          <button type="button" class="remove-banner-btn" id="removeBannerBtn">移除最后一条</button>
+          <span id="bannerCountHint">当前 3 条 / 最多 10 条</span>
+        </div>
+        </div>
+
+        <div class="panel-title">颜色 <span>可自定义</span></div>
+        <div class="grid2">
+          <label><span>主标题颜色</span><input type="color" id="headlineColor" value="#ffffff" /></label>
+          <label><span>副标题颜色</span><input type="color" id="sublineColor" value="#ffffff" /></label>
+          <label><span>卖点条底色</span><input type="color" id="pointsBgColor" value="#6b1235" /></label>
+          <label><span>卖点文字颜色</span><input type="color" id="pointsTextColor" value="#ffffff" /></label>
+        </div>
+
+        <div class="panel-title">局部改色 <span>点一下自动识别，不用涂抹</span></div>
+        <div class="recolor-box">
+          <button type="button" class="recolor-mode-btn" id="recolorModeBtn" disabled>开启点选改色</button>
+          <div class="recolor-hint">开启后，在右侧图片里点一下脚垫；系统会自动选中同色区域。可连续点多个区域。</div>
+          <div class="pick-status" id="recolorPickStatus">等待点选区域</div>
+          <div class="recolor-grid">
+            <label><span>目标颜色</span><input type="color" id="recolorColor" value="#6b3f26" /></label>
+            <label><span>颜色强度</span><input type="range" id="recolorStrength" min=0 max=100 value=75 /><output id="recolorStrengthOut">75%</output></label>
+          </div>
+          <div class="recolor-control"><span>识别范围</span><input type="range" id="recolorTolerance" min=5 max=80 value=20 /><output id="recolorToleranceOut">20</output></div>
+          <div class="recolor-control"><span>边缘羽化</span><input type="range" id="recolorFeather" min=0 max=24 value=6 /><output id="recolorFeatherOut">6px</output></div>
+          <div class="recolor-control"><span>明暗调整</span><input type="range" id="recolorLight" min=-60 max=60 value=0 /><output id="recolorLightOut">0</output></div>
+          <div class="recolor-presets">
+            <button type="button" class="preset-btn" data-recolor="#8c3d2c"><span class="preset-dot" style="background:#8c3d2c"></span>赤茶橘</button>
+            <button type="button" class="preset-btn" data-recolor="#6b3f26"><span class="preset-dot" style="background:#6b3f26"></span>琥珀棕</button>
+            <button type="button" class="preset-btn" data-recolor="#1c1c1e"><span class="preset-dot" style="background:#1c1c1e"></span>极夜黑</button>
+            <button type="button" class="preset-btn" data-recolor="#4a3328"><span class="preset-dot" style="background:#4a3328"></span>松露棕</button>
+          </div>
+          <div class="recolor-actions">
+            <button type="button" id="recolorUndoBtn" disabled>撤销上一次点选</button>
+            <button type="button" id="recolorClearBtn" disabled>清除选区</button>
+          </div>
+        </div>
+
+        <div class="panel-title">氛围灯描边 <span>点选节点连线，不用涂抹</span></div>
+        <div class="recolor-box glow-box">
+          <button type="button" class="recolor-mode-btn" id="glowModeBtn" disabled>开启点选灯线</button>
+          <div class="recolor-hint">开启后，在右侧图片上按顺序点几个位置；点完按「完成当前灯线」。不涂抹，也不自动识别轮廓。</div>
+          <div class="pick-status" id="glowPickStatus">等待点选灯线节点</div>
+          <div class="recolor-grid">
+            <label><span>灯线颜色</span><input type="color" id="glowColor" value="#c14dff" /></label>
+            <label><span>不透明度</span><input type="range" id="glowOpacity" min="10" max="100" value="100" /><output id="glowOpacityOut">100%</output></label>
+          </div>
+          <div class="recolor-control"><span>线宽</span><input type="range" id="glowWidth" min="1" max="24" value="2" /><output id="glowWidthOut">2px</output></div>
+          <div class="recolor-control"><span>光晕大小</span><input type="range" id="glowSpread" min="0" max="60" value="8" /><output id="glowSpreadOut">8px</output></div>
+          <div class="recolor-control"><span>光晕强度</span><input type="range" id="glowIntensity" min="0" max="100" value="55" /><output id="glowIntensityOut">55%</output></div>
+          <div class="recolor-presets">
+            <button type="button" class="preset-btn" data-glow="#b13cff"><span class="preset-dot" style="background:#b13cff"></span>紫罗兰</button>
+            <button type="button" class="preset-btn" data-glow="#6f5cff"><span class="preset-dot" style="background:#6f5cff"></span>电光蓝</button>
+            <button type="button" class="preset-btn" data-glow="#35d6ff"><span class="preset-dot" style="background:#35d6ff"></span>冰蓝</button>
+            <button type="button" class="preset-btn" data-glow="#2fffe0"><span class="preset-dot" style="background:#2fffe0"></span>青绿</button>
+            <button type="button" class="preset-btn" data-glow="#ffb23e"><span class="preset-dot" style="background:#ffb23e"></span>琥珀</button>
+            <button type="button" class="preset-btn" data-glow="#ff3d6e"><span class="preset-dot" style="background:#ff3d6e"></span>霓虹红</button>
+            <button type="button" class="preset-btn" data-glow="#ffffff"><span class="preset-dot" style="background:#fff"></span>冷白</button>
+          </div>
+          <div class="recolor-actions">
+            <button type="button" id="glowRefStyleBtn">参考图细霓虹</button>
+            <button type="button" id="glowFinishBtn" disabled>完成当前灯线</button>
+            <button type="button" id="glowUndoBtn" disabled>撤销上一步</button>
+            <button type="button" id="glowClearBtn" disabled>清除灯线</button>
+          </div>
+        </div>
+
+        <div class="panel-title">底部卖点 <span>留空自动隐藏</span></div>
+        <div class="grid2">
+          <label><div class="field-head"><span>卖点 1</span><button type="button" class="clear-btn" data-clear="point1">删除</button></div><input type="text" id="point1" value="原车打版 精准贴合" /></label>
+          <label><div class="field-head"><span>卖点 2</span><button type="button" class="clear-btn" data-clear="point2">删除</button></div><input type="text" id="point2" value="仿羊绒毯面 环保无异味" /></label>
+          <label><div class="field-head"><span>卖点 3</span><button type="button" class="clear-btn" data-clear="point3">删除</button></div><input type="text" id="point3" value="原车同色设计 彰显质感" /></label>
+          <label><div class="field-head"><span>卖点 4</span><button type="button" class="clear-btn" data-clear="point4">删除</button></div><input type="text" id="point4" value="边缘嵌入原车加固" /></label>
+        </div>
+
+        <label class="check"><input type="checkbox" id="showPoints" checked /> 显示底部卖点条</label>
+
+        <div class="actions">
+          <button type="button" class="primary" id="downloadBtn">下载 1440×1440 PNG</button>
+          <button type="button" id="resetBtn">恢复默认文案</button>
+          <button type="button" id="resetPositionsBtn">重置文字位置</button>
+        </div>
+      </section>
+
+      <section class="preview-wrap">
+        <div class="preview-stage">
+          <canvas id="preview" width="1440" height="1440"></canvas>
+          <canvas id="glowOverlay" width="1440" height="1440"></canvas>
+        </div>
+        <div class="preview-hint">文字和横幅可直接拖动；点选灯线时，白色节点也能拖动微调。下载按 1440×1440 原始分辨率输出。</div>
+      </section>
+    </main>
+
+    <script>
+      const canvas = document.getElementById("preview");
+      const ctx = canvas.getContext("2d");
+      const glowOverlay = document.getElementById("glowOverlay");
+      const glowOverlayCtx = glowOverlay.getContext("2d");
+      const fileInput = document.getElementById("fileInput");
+      const dropZone = document.getElementById("dropZone");
+      const fileName = document.getElementById("fileName");
+      const showPoints = document.getElementById("showPoints");
+      const state = { image: null, imageName: "" };
+      const offsets = {
+        banner1: { x: 0, y: 0 },
+        banner2: { x: 0, y: 0 },
+        banner3: { x: 0, y: 0 },
+        headline: { x: 0, y: 0 },
+        subline: { x: 0, y: 0 },
+        points: { x: 0, y: 0 },
+      };
+      let baseBoxes = {};
+      let hitBoxes = {};
+      let drag = null;
+      let bannerCount = 3;
+      const MAX_BANNERS = 10;
+      const maskCanvas = document.createElement("canvas");
+      maskCanvas.width = canvas.width;
+      maskCanvas.height = canvas.height;
+      const maskCtx = maskCanvas.getContext("2d");
+      const maskImageData = maskCtx.createImageData(maskCanvas.width, maskCanvas.height);
+      const tintCanvas = document.createElement("canvas");
+      tintCanvas.width = canvas.width;
+      tintCanvas.height = canvas.height;
+      const tintCtx = tintCanvas.getContext("2d");
+      const baseCanvas = document.createElement("canvas");
+      baseCanvas.width = canvas.width;
+      baseCanvas.height = canvas.height;
+      const baseCtx = baseCanvas.getContext("2d", { willReadFrequently: true });
+      const baseBlurCanvas = document.createElement("canvas");
+      baseBlurCanvas.width = canvas.width;
+      baseBlurCanvas.height = canvas.height;
+      const baseBlurCtx = baseBlurCanvas.getContext("2d", { willReadFrequently: true });
+      let baseRenderDirty = true;
+      let sharpenTimer = null;
+      const sourceCanvas = document.createElement("canvas");
+      sourceCanvas.width = canvas.width;
+      sourceCanvas.height = canvas.height;
+      const sourceCtx = sourceCanvas.getContext("2d", { willReadFrequently: true });
+      let sourceImageData = null;
+      let recolorMode = false;
+      let recolorSelections = [];
+      let recolorMaskData = null;
+      let recolorHasMask = false;
+      let recolorTintDirty = true;
+      let recolorFrame = null;
+      let recolorRebuildTimer = null;
+      let glowMode = false;
+      let glowLines = [];
+      let glowCurrent = [];
+      let glowDrag = null;
+      let glowFrame = null;
+      let legacyItems = [];
+      let legacySelectMode = false;
+      let legacySelectDrag = null;
+      let legacyDraftRect = null;
+      let legacySelectedId = null;
+      let legacyOcrBusy = false;
+      const SAVE_KEY = "main-image-layout-v1";
+      let saveTimer = null;
+      let saveInFlight = false;
+      let restoringState = false;
+      let cachedImageDataUrl = null;
+      let cachedImageSource = null;
+
+      const DEFAULTS = {
+        headline1: "原车色双层脚垫",
+        headline2: "",
+        subline: "原车同色 · 防尘防污 · 防滑耐磨",
+        banner1Text: "适用于享界 S9/S9T",
+        banner1Style: "pill",
+        banner1Theme: "maroon",
+        banner2Text: "",
+        banner2Style: "bar",
+        banner2Theme: "black",
+        banner3Text: "",
+        banner3Style: "bar",
+        banner3Theme: "gold",
+        banner1Width: 100,
+        banner1Height: 100,
+        banner2Width: 100,
+        banner2Height: 100,
+        banner3Width: 100,
+        banner3Height: 100,
+        banner1Bg: "#7a1745",
+        banner1TextColor: "#ffffff",
+        banner2Bg: "#1a1f2a",
+        banner2TextColor: "#ffffff",
+        banner3Bg: "#b8860b",
+        banner3TextColor: "#ffffff",
+        headlineColor: "#ffffff",
+        sublineColor: "#ffffff",
+        pointsBgColor: "#6b1235",
+        pointsTextColor: "#ffffff",
+        point1: "原车打版 精准贴合",
+        point2: "仿羊绒毯面 环保无异味",
+        point3: "原车同色设计 彰显质感",
+        point4: "边缘嵌入原车加固",
+      };
+
+      const textIds = ["headline1", "headline2", "subline", "banner1Text", "banner2Text", "banner3Text", "point1", "point2", "point3", "point4"];
+      const selectIds = ["banner1Style", "banner1Theme", "banner2Style", "banner2Theme", "banner3Style", "banner3Theme"];
+      const colorIds = ["banner1Bg", "banner1TextColor", "banner2Bg", "banner2TextColor", "banner3Bg", "banner3TextColor", "headlineColor", "sublineColor", "pointsBgColor", "pointsTextColor"];
+      const rangeIds = ["banner1Width", "banner1Height", "banner2Width", "banner2Height", "banner3Width", "banner3Height"];
+      const themeColors = { maroon: "#7a1745", black: "#1a1f2a", gold: "#b8860b" };
+
+      function syncRangeOutputs() {
+        document.querySelectorAll("input[type=range][id^=banner]").forEach(function (input) {
+          const output = byId(input.id + "Out");
+          if (output) output.textContent = input.value + "%";
+        });
+      }
+      const byId = (id) => document.getElementById(id);
+      const FONT = '"Microsoft YaHei", "PingFang SC", "Noto Sans SC", "Source Han Sans SC", sans-serif';
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function union(a, b) {
+        if (!a) return b;
+        if (!b) return a;
+        const x = Math.min(a.x, b.x);
+        const y = Math.min(a.y, b.y);
+        const right = Math.max(a.x + a.w, b.x + b.w);
+        const bottom = Math.max(a.y + a.h, b.y + b.h);
+        return { x, y, w: right - x, h: bottom - y };
+      }
+
+      function padBox(box, padding) {
+        return {
+          x: box.x - padding,
+          y: box.y - padding,
+          w: box.w + padding * 2,
+          h: box.h + padding * 2,
+        };
+      }
+
+      function roundRect(x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.arcTo(x + w, y, x + w, y + h, radius);
+        ctx.arcTo(x + w, y + h, x, y + h, radius);
+        ctx.arcTo(x, y + h, x, y, radius);
+        ctx.arcTo(x, y, x + w, y, radius);
+        ctx.closePath();
+      }
+
+      function shadeColor(hex, percent) {
+        const value = String(hex || "#000000").replace("#", "");
+        const full = value.length === 3 ? value.split("").map((char) => char + char).join("") : value;
+        const number = parseInt(full, 16);
+        const r = clamp(Math.round(((number >> 16) & 255) + 255 * percent), 0, 255);
+        const g = clamp(Math.round(((number >> 8) & 255) + 255 * percent), 0, 255);
+        const b = clamp(Math.round((number & 255) + 255 * percent), 0, 255);
+        return `rgb(${r}, ${g}, ${b})`;
+      }
+
+      function colorGradient(color, x, y, w, h) {
+        const g = ctx.createLinearGradient(x, y, x + w, y + h);
+        g.addColorStop(0, shadeColor(color, 0.10));
+        g.addColorStop(1, shadeColor(color, -0.22));
+        return g;
+      }
+
+      function renderBaseImage() {
+        baseCtx.clearRect(0, 0, baseCanvas.width, baseCanvas.height);
+        if (!state.image) {
+          baseRenderDirty = false;
+          return;
+        }
+        baseCtx.imageSmoothingEnabled = true;
+        baseCtx.imageSmoothingQuality = "high";
+        drawImageCoverTo(baseCtx, state.image);
+        const amount = clamp(Number(byId("imageSharpen").value) / 100, 0, 1);
+        if (amount > 0) {
+          baseBlurCtx.clearRect(0, 0, baseBlurCanvas.width, baseBlurCanvas.height);
+          baseBlurCtx.filter = "blur(1.15px)";
+          baseBlurCtx.drawImage(baseCanvas, 0, 0);
+          baseBlurCtx.filter = "none";
+          const sharpened = baseCtx.getImageData(0, 0, baseCanvas.width, baseCanvas.height);
+          const blurred = baseBlurCtx.getImageData(0, 0, baseBlurCanvas.width, baseBlurCanvas.height);
+          const data = sharpened.data;
+          const blurData = blurred.data;
+          const strength = amount * 0.95;
+          for (let index = 0; index < data.length; index += 4) {
+            data[index] = clamp(data[index] + (data[index] - blurData[index]) * strength, 0, 255);
+            data[index + 1] = clamp(data[index + 1] + (data[index + 1] - blurData[index + 1]) * strength, 0, 255);
+            data[index + 2] = clamp(data[index + 2] + (data[index + 2] - blurData[index + 2]) * strength, 0, 255);
+          }
+          baseCtx.putImageData(sharpened, 0, 0);
+        }
+        for (const item of legacyItems) {
+          if (item.erase) applyLegacyErase(baseCtx, item);
+        }
+        baseRenderDirty = false;
+      }
+
+      function drawCover(image) {
+        if (baseRenderDirty) renderBaseImage();
+        ctx.drawImage(baseCanvas, 0, 0);
+      }
+
+      function drawPlaceholder() {
+        const g = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        g.addColorStop(0, "#1b2230");
+        g.addColorStop(0.5, "#0d1118");
+        g.addColorStop(1, "#24142a");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255,255,255,.72)";
+        ctx.font = `600 44px ${FONT}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("上传一张生成的商品底图", canvas.width / 2, canvas.height / 2 - 20);
+        ctx.fillStyle = "rgba(255,255,255,.38)";
+        ctx.font = `400 26px ${FONT}`;
+        ctx.fillText("上传后这里会实时显示带文案的主图效果", canvas.width / 2, canvas.height / 2 + 42);
+      }
+
+      function fitFont(text, maxWidth, baseSize, weight = 700, minSize = 20) {
+        let size = baseSize;
+        while (size > minSize) {
+          ctx.font = `${weight} ${size}px ${FONT}`;
+          if (ctx.measureText(text).width <= maxWidth) break;
+          size -= 2;
+        }
+        return size;
+      }
+
+      function drawText(text, baseX, baseY, maxWidth, baseSize, weight = 700, color = "#fff", offset = { x: 0, y: 0 }) {
+        const size = fitFont(text, maxWidth, baseSize, weight);
+        ctx.font = `${weight} ${size}px ${FONT}`;
+        const width = Math.min(ctx.measureText(text).width, maxWidth);
+        const height = size * 1.15;
+        const x = baseX + offset.x;
+        const y = baseY + offset.y;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.lineJoin = "round";
+        ctx.shadowColor = "rgba(0,0,0,.72)";
+        ctx.shadowBlur = 16;
+        ctx.shadowOffsetY = 5;
+        ctx.fillStyle = color;
+        ctx.fillText(text, x, y, maxWidth);
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.fillText(text, x, y, maxWidth);
+        return {
+          hit: { x: x - width / 2, y: y - height / 2, w: width, h: height },
+          base: { x: baseX - width / 2, y: baseY - height / 2, w: width, h: height },
+        };
+      }
+
+      function drawBanner(text, centerX, baseY, style, bgColor, textColor, offset, widthScale = 1, heightScale = 1) {
+        ctx.font = `700 30px ${FONT}`;
+        const textWidth = Math.min(1000, ctx.measureText(text).width);
+        const isPill = style === "pill";
+        const w = Math.min(canvas.width - 24, Math.max(80, (textWidth + (isPill ? 62 : 96)) * widthScale));
+        const h = Math.max(38, Math.round(64 * heightScale));
+        const baseX = centerX - w / 2;
+        const x = baseX + offset.x;
+        const y = baseY + offset.y;
+        ctx.fillStyle = colorGradient(bgColor, x, y, w, h);
+        roundRect(x, y, w, h, isPill ? 999 : 12);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,.28)";
+        ctx.lineWidth = 2;
+        roundRect(x + 1, y + 1, w - 2, h - 2, isPill ? 998 : 11);
+        ctx.stroke();
+        ctx.fillStyle = textColor;
+        ctx.font = `700 30px ${FONT}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "rgba(0,0,0,.55)";
+        ctx.shadowBlur = 8;
+        const bannerFont = fitFont(text, w - 42, Math.max(16, Math.round(30 * heightScale)), 700, 12);
+        ctx.font = "700 " + bannerFont + "px " + FONT;
+        ctx.fillText(text, x + w / 2, y + h / 2 + 1, w - 42);
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        return { base: { x: baseX, y: baseY, w, h }, hit: { x, y, w, h } };
+      }
+
+      function drawTextBand(text, x, y, w, h, baseSize = 28, bgColor = "#6b1235", textColor = "#ffffff") {
+        const g = colorGradient(bgColor, x, y, w, h);
+        ctx.fillStyle = g;
+        roundRect(x, y, w, h, 14);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,.16)";
+        ctx.lineWidth = 1.5;
+        roundRect(x + 1, y + 1, w - 2, h - 2, 13);
+        ctx.stroke();
+        const size = fitFont(text, w - 28, baseSize, 700, 18);
+        ctx.font = `700 ${size}px ${FONT}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = textColor;
+        ctx.shadowColor = "rgba(0,0,0,.45)";
+        ctx.shadowBlur = 8;
+        ctx.fillText(text, x + w / 2, y + h / 2 + 1, w - 24);
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+      }
+
+      function drawImageCoverTo(context, image) {
+        const scale = Math.max(canvas.width / image.width, canvas.height / image.height);
+        const width = image.width * scale;
+        const height = image.height * scale;
+        context.drawImage(image, (canvas.width - width) / 2, (canvas.height - height) / 2, width, height);
+      }
+
+      function requestRecolorDraw() {
+        if (recolorFrame) return;
+        recolorFrame = requestAnimationFrame(function () {
+          recolorFrame = null;
+          draw();
+        });
+      }
+
+      function renderRecolorTint() {
+        tintCtx.clearRect(0, 0, tintCanvas.width, tintCanvas.height);
+        if (!state.image || !recolorHasMask) {
+          recolorTintDirty = false;
+          return;
+        }
+        if (baseRenderDirty) renderBaseImage();
+        tintCtx.drawImage(baseCanvas, 0, 0);
+        tintCtx.save();
+        tintCtx.globalCompositeOperation = "color";
+        tintCtx.fillStyle = byId("recolorColor").value;
+        tintCtx.fillRect(0, 0, tintCanvas.width, tintCanvas.height);
+        tintCtx.globalCompositeOperation = "source-atop";
+        const light = Number(byId("recolorLight").value);
+        if (light < 0) {
+          tintCtx.fillStyle = "rgba(0,0,0," + (Math.abs(light) / 60 * 0.9) + ")";
+          tintCtx.fillRect(0, 0, tintCanvas.width, tintCanvas.height);
+        } else if (light > 0) {
+          tintCtx.fillStyle = "rgba(255,255,255," + (light / 60 * 0.65) + ")";
+          tintCtx.fillRect(0, 0, tintCanvas.width, tintCanvas.height);
+        }
+        tintCtx.globalCompositeOperation = "destination-in";
+        const feather = Number(byId("recolorFeather").value);
+        tintCtx.filter = feather > 0 ? "blur(" + feather + "px)" : "none";
+        tintCtx.drawImage(maskCanvas, 0, 0);
+        tintCtx.filter = "none";
+        tintCtx.restore();
+        recolorTintDirty = false;
+      }
+
+      function drawRecolor() {
+        if (!state.image || !recolorHasMask) return;
+        const strength = Number(byId("recolorStrength").value);
+        if (strength <= 0) return;
+        if (recolorTintDirty) renderRecolorTint();
+        ctx.save();
+        ctx.globalAlpha = strength / 100;
+        ctx.drawImage(tintCanvas, 0, 0);
+        ctx.restore();
+      }
+
+      function refreshSourceImageData() {
+        sourceCtx.clearRect(0, 0, sourceCanvas.width, sourceCanvas.height);
+        if (!state.image) {
+          sourceImageData = null;
+          return;
+        }
+        drawImageCoverTo(sourceCtx, state.image);
+        sourceImageData = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+      }
+
+      function regionAt(seed, tolerance) {
+        if (!sourceImageData) return null;
+        const width = sourceImageData.width;
+        const height = sourceImageData.height;
+        const data = sourceImageData.data;
+        const total = width * height;
+        const sx = clamp(Math.round(seed.x), 0, width - 1);
+        const sy = clamp(Math.round(seed.y), 0, height - 1);
+        const seedIndex = sy * width + sx;
+        const seedOffset = seedIndex * 4;
+        if (data[seedOffset + 3] < 12) return null;
+        const seedR = data[seedOffset];
+        const seedG = data[seedOffset + 1];
+        const seedB = data[seedOffset + 2];
+        const threshold = Math.max(2, Number(tolerance) || 28) * 2.15;
+        const limit = threshold * threshold;
+        const mask = new Uint8Array(total);
+        const queue = new Int32Array(total);
+        let head = 0;
+        let tail = 0;
+        let count = 0;
+        mask[seedIndex] = 1;
+        queue[tail++] = seedIndex;
+
+        function matches(index) {
+          const offset = index * 4;
+          if (data[offset + 3] < 12) return false;
+          const dr = data[offset] - seedR;
+          const dg = data[offset + 1] - seedG;
+          const db = data[offset + 2] - seedB;
+          return dr * dr * 0.3 + dg * dg * 0.59 + db * db * 0.11 <= limit;
+        }
+
+        while (head < tail) {
+          const index = queue[head++];
+          count += 1;
+          const y = (index / width) | 0;
+          const x = index - y * width;
+          if (x > 0) {
+            const next = index - 1;
+            if (!mask[next] && matches(next)) { mask[next] = 1; queue[tail++] = next; }
+          }
+          if (x + 1 < width) {
+            const next = index + 1;
+            if (!mask[next] && matches(next)) { mask[next] = 1; queue[tail++] = next; }
+          }
+          if (y > 0) {
+            const next = index - width;
+            if (!mask[next] && matches(next)) { mask[next] = 1; queue[tail++] = next; }
+          }
+          if (y + 1 < height) {
+            const next = index + width;
+            if (!mask[next] && matches(next)) { mask[next] = 1; queue[tail++] = next; }
+          }
+        }
+        return { mask, count };
+      }
+
+      function unionRegionMasks(selections, tolerance) {
+        if (!sourceImageData || !selections.length) return null;
+        const total = sourceImageData.width * sourceImageData.height;
+        const union = new Uint8Array(total);
+        let any = false;
+        for (const selection of selections) {
+          const region = regionAt(selection, tolerance);
+          if (!region) continue;
+          any = true;
+          for (let index = 0; index < total; index++) {
+            if (region.mask[index]) union[index] = 1;
+          }
+        }
+        return any ? union : null;
+      }
+
+      function filledHoleMask(mask) {
+        if (!mask) return null;
+        const width = sourceCanvas.width;
+        const height = sourceCanvas.height;
+        const total = width * height;
+        const outside = new Uint8Array(total);
+        const queue = new Int32Array(total);
+        let head = 0;
+        let tail = 0;
+
+        function push(index) {
+          if (!mask[index] && !outside[index]) {
+            outside[index] = 1;
+            queue[tail++] = index;
+          }
+        }
+
+        for (let x = 0; x < width; x++) {
+          push(x);
+          push((height - 1) * width + x);
+        }
+        for (let y = 1; y < height - 1; y++) {
+          push(y * width);
+          push(y * width + width - 1);
+        }
+        while (head < tail) {
+          const index = queue[head++];
+          const y = (index / width) | 0;
+          const x = index - y * width;
+          if (x > 0) push(index - 1);
+          if (x + 1 < width) push(index + 1);
+          if (y > 0) push(index - width);
+          if (y + 1 < height) push(index + width);
+        }
+
+        const filled = new Uint8Array(mask);
+        for (let index = 0; index < total; index++) {
+          if (!mask[index] && !outside[index]) filled[index] = 1;
+        }
+        return filled;
+      }
+
+      function updatePickStatus(id, text, kind = "") {
+        const status = byId(id);
+        if (!status) return;
+        status.textContent = text;
+        status.classList.remove("ok", "warn");
+        if (kind) status.classList.add(kind);
+      }
+
+      function selectionPercent(mask) {
+        if (!mask) return 0;
+        let count = 0;
+        for (let index = 0; index < mask.length; index++) if (mask[index]) count += 1;
+        return count / mask.length * 100;
+      }
+
+      function legacyId() {
+        return "legacy-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+      }
+
+      function normalizeLegacyBox(box) {
+        const x = clamp(Number(box.x) || 0, 0, canvas.width - 2);
+        const y = clamp(Number(box.y) || 0, 0, canvas.height - 2);
+        const right = clamp((Number(box.x) || 0) + (Number(box.w) || 0), x + 1, canvas.width);
+        const bottom = clamp((Number(box.y) || 0) + (Number(box.h) || 0), y + 1, canvas.height);
+        return { x, y, w: right - x, h: bottom - y };
+      }
+
+      function legacyPickBox(item) {
+        if (item.pickX != null && item.pickY != null && item.pickW != null && item.pickH != null && Number.isFinite(Number(item.pickX)) && Number.isFinite(Number(item.pickY)) && Number(item.pickW) > 0 && Number(item.pickH) > 0) {
+          return { x: Number(item.pickX), y: Number(item.pickY), w: Number(item.pickW), h: Number(item.pickH) };
+        }
+        return { x: Number(item.x) || 0, y: Number(item.y) || 0, w: Math.max(1, Number(item.w) || 1), h: Math.max(1, Number(item.h) || 1) };
+      }
+
+      function legacySourceBox(item) {
+        if (item.srcX != null && item.srcY != null && item.srcW != null && item.srcH != null && Number.isFinite(Number(item.srcX)) && Number.isFinite(Number(item.srcY)) && Number(item.srcW) > 0 && Number(item.srcH) > 0) {
+          return { x: Number(item.srcX), y: Number(item.srcY), w: Number(item.srcW), h: Number(item.srcH) };
+        }
+        return legacyPickBox(item);
+      }
+
+      function encodeLegacyMask(mask) {
+        if (!mask || !mask.length) return null;
+        const bytes = new Uint8Array(Math.ceil(mask.length / 8));
+        for (let index = 0; index < mask.length; index++) {
+          if (mask[index]) bytes[index >> 3] |= 1 << (index & 7);
+        }
+        let binary = "";
+        const chunk = 0x8000;
+        for (let index = 0; index < bytes.length; index += chunk) {
+          binary += String.fromCharCode.apply(null, bytes.subarray(index, index + chunk));
+        }
+        return btoa(binary);
+      }
+
+      function decodeLegacyMask(text, length) {
+        if (!text || !length || length < 1) return null;
+        try {
+          const binary = atob(String(text));
+          const mask = new Uint8Array(length);
+          for (let index = 0; index < length; index++) {
+            mask[index] = (binary.charCodeAt(index >> 3) >> (index & 7)) & 1;
+          }
+          return mask;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function dilateLegacyMask(mask, width, height) {
+        if (!mask || width < 1 || height < 1) return mask;
+        const output = new Uint8Array(mask);
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            if (!mask[y * width + x]) continue;
+            for (let dy = -1; dy <= 1; dy++) {
+              const ny = y + dy;
+              if (ny < 0 || ny >= height) continue;
+              for (let dx = -1; dx <= 1; dx++) {
+                const nx = x + dx;
+                if (nx < 0 || nx >= width) continue;
+                output[ny * width + nx] = 1;
+              }
+            }
+          }
+        }
+        return output;
+      }
+
+      function growLegacyMask(mask, width, height, radius) {
+        let output = mask;
+        for (let step = 0; step < radius; step++) {
+          output = dilateLegacyMask(output, width, height);
+        }
+        return output;
+      }
+
+      function legacyOverlap(a, b) {
+        const left = Math.max(a.x, b.x);
+        const top = Math.max(a.y, b.y);
+        const right = Math.min(a.x + a.w, b.x + b.w);
+        const bottom = Math.min(a.y + a.h, b.y + b.h);
+        if (right <= left || bottom <= top) return 0;
+        const intersection = (right - left) * (bottom - top);
+        return intersection / Math.max(1, Math.min(a.w * a.h, b.w * b.h));
+      }
+
+      function cleanLegacyOcrText(text) {
+        let value = String(text || "").replace(/\s+/g, " ").trim();
+        value = value.replace(/([\u3400-\u9fff])\s+(?=[\u3400-\u9fff])/g, "$1");
+        value = value.replace(/([\u3400-\u9fff])\s+([·。，、；：！？])/g, "$1$2");
+        value = value.replace(/([·。，、；：！？])\s+(?=[\u3400-\u9fff])/g, "$1");
+        return value;
+      }
+
+      function sampleLegacyTextColor(box) {
+        if (!state.image) return "#ffffff";
+        if (baseRenderDirty) renderBaseImage();
+        const region = normalizeLegacyBox(box);
+        const x = Math.floor(region.x);
+        const y = Math.floor(region.y);
+        const w = Math.max(1, Math.floor(region.w));
+        const h = Math.max(1, Math.floor(region.h));
+        const data = baseCtx.getImageData(x, y, w, h).data;
+        const pixelCount = w * h;
+        const step = Math.max(1, Math.floor(pixelCount / 4000));
+        let luminance = 0;
+        let count = 0;
+        for (let pixel = 0; pixel < pixelCount; pixel += step) {
+          const offset = pixel * 4;
+          luminance += data[offset] * 0.299 + data[offset + 1] * 0.587 + data[offset + 2] * 0.114;
+          count += 1;
+        }
+        return count && luminance / count < 142 ? "#ffffff" : "#151515";
+      }
+
+      function legacyCandidateFromOcrLine(line) {
+        const words = (Array.isArray(line.words) ? line.words : []).filter(function (word) {
+          return word && Number.isFinite(Number(word.x)) && Number.isFinite(Number(word.y));
+        });
+        if (!words.length) return null;
+        const left = Math.min.apply(null, words.map(function (word) { return Number(word.x); }));
+        const top = Math.min.apply(null, words.map(function (word) { return Number(word.y); }));
+        const right = Math.max.apply(null, words.map(function (word) { return Number(word.x) + Number(word.w || 0); }));
+        const bottom = Math.max.apply(null, words.map(function (word) { return Number(word.y) + Number(word.h || 0); }));
+        const box = normalizeLegacyBox({ x: left, y: top, w: right - left, h: bottom - top });
+        const text = cleanLegacyOcrText(line.text);
+        if (!text || box.w < 10 || box.h < 10 || box.w > canvas.width * 0.97 || box.h > canvas.height * 0.82) return null;
+        return {
+          id: legacyId(),
+          text,
+          x: box.x,
+          y: box.y,
+          w: box.w,
+          h: box.h,
+          pickX: box.x,
+          pickY: box.y,
+          pickW: box.w,
+          pickH: box.h,
+          color: sampleLegacyTextColor(box),
+          fontSize: Math.round(clamp(box.h * 0.92, 12, 220)),
+          fontWeight: box.h >= 72 ? 800 : box.h >= 36 ? 700 : 600,
+          erase: false,
+          layer: false,
+        };
+      }
+
+      function applyLegacyErase(context, item) {
+        const box = legacySourceBox(item);
+        const pad = Number(byId("legacyPadding").value) || 0;
+        const fillLeft = clamp(Math.floor(box.x - pad), 0, canvas.width - 1);
+        const fillTop = clamp(Math.floor(box.y - pad), 0, canvas.height - 1);
+        const fillRight = clamp(Math.ceil(box.x + box.w + pad), fillLeft + 1, canvas.width);
+        const fillBottom = clamp(Math.ceil(box.y + box.h + pad), fillTop + 1, canvas.height);
+        const sampleX = clamp(fillLeft - 1, 0, canvas.width - 1);
+        const sampleY = clamp(fillTop - 1, 0, canvas.height - 1);
+        const sampleRight = clamp(fillRight + 1, sampleX + 2, canvas.width);
+        const sampleBottom = clamp(fillBottom + 1, sampleY + 2, canvas.height);
+        const sampleWidth = sampleRight - sampleX;
+        const sampleHeight = sampleBottom - sampleY;
+        if (sampleWidth < 3 || sampleHeight < 3) return;
+
+        const image = context.getImageData(sampleX, sampleY, sampleWidth, sampleHeight);
+        const data = image.data;
+        const original = new Uint8ClampedArray(data);
+        const lastX = sampleWidth - 1;
+        const lastY = sampleHeight - 1;
+        const mask = item._eraseMask;
+        const maskWidth = Number(item._eraseMaskW) || 0;
+        const maskHeight = Number(item._eraseMaskH) || 0;
+        const hasMask = !!(mask && mask.length >= maskWidth * maskHeight && maskWidth > 0 && maskHeight > 0);
+
+        if (!hasMask) return;
+
+        const known = new Uint8Array(sampleWidth * sampleHeight);
+        const sourceX = Math.floor(box.x);
+        const sourceY = Math.floor(box.y);
+        for (let y = 0; y < sampleHeight; y++) {
+          for (let x = 0; x < sampleWidth; x++) {
+            const mx = sampleX + x - sourceX;
+            const my = sampleY + y - sourceY;
+            const isMasked = mx >= 0 && my >= 0 && mx < maskWidth && my < maskHeight && mask[my * maskWidth + mx];
+            known[y * sampleWidth + x] = isMasked ? 0 : 1;
+          }
+        }
+
+        for (let y = 1; y < lastY; y++) {
+          let x = 1;
+          while (x < lastX) {
+            if (known[y * sampleWidth + x]) {
+              x += 1;
+              continue;
+            }
+            const start = x;
+            while (x < lastX && !known[y * sampleWidth + x]) x += 1;
+            const end = x - 1;
+            let left = start - 1;
+            while (left >= 0 && !known[y * sampleWidth + left]) left -= 1;
+            let right = end + 1;
+            while (right < sampleWidth && !known[y * sampleWidth + right]) right += 1;
+            const hasLeft = left >= 0;
+            const hasRight = right < sampleWidth;
+            for (let px = start; px <= end; px++) {
+              let red;
+              let green;
+              let blue;
+              if (hasLeft && hasRight) {
+                const mix = (px - left) / Math.max(1, right - left);
+                const leftOffset = (y * sampleWidth + left) * 4;
+                const rightOffset = (y * sampleWidth + right) * 4;
+                red = original[leftOffset] * (1 - mix) + original[rightOffset] * mix;
+                green = original[leftOffset + 1] * (1 - mix) + original[rightOffset + 1] * mix;
+                blue = original[leftOffset + 2] * (1 - mix) + original[rightOffset + 2] * mix;
+              } else {
+                const source = hasLeft ? left : hasRight ? right : -1;
+                if (source < 0) continue;
+                const sourceOffset = (y * sampleWidth + source) * 4;
+                red = original[sourceOffset];
+                green = original[sourceOffset + 1];
+                blue = original[sourceOffset + 2];
+              }
+              const target = (y * sampleWidth + px) * 4;
+              data[target] = red;
+              data[target + 1] = green;
+              data[target + 2] = blue;
+              data[target + 3] = 255;
+            }
+          }
+        }
+
+        const smoothingPasses = sampleWidth * sampleHeight > 300000 ? 12 : 30;
+        for (let iteration = 0; iteration < smoothingPasses; iteration++) {
+          for (let y = 1; y < lastY; y++) {
+            for (let x = 1; x < lastX; x++) {
+              const index = y * sampleWidth + x;
+              if (known[index]) continue;
+              const target = index * 4;
+              const left = target - 4;
+              const right = target + 4;
+              const top = target - sampleWidth * 4;
+              const bottom = target + sampleWidth * 4;
+              data[target] = (data[left] + data[right] + data[top] + data[bottom]) * 0.25;
+              data[target + 1] = (data[left + 1] + data[right + 1] + data[top + 1] + data[bottom + 1]) * 0.25;
+              data[target + 2] = (data[left + 2] + data[right + 2] + data[top + 2] + data[bottom + 2]) * 0.25;
+              data[target + 3] = 255;
+            }
+          }
+        }
+        context.putImageData(image, sampleX, sampleY);
+      }
+
+      function legacyRenderBox(item) {
+        const scale = item.pixel ? clamp(Number(item.pixelScale) || 1, 0.2, 3) : 1;
+        const width = item.w * scale;
+        const height = item.h * scale;
+        return {
+          x: item.x + (item.w - width) / 2,
+          y: item.y + (item.h - height) / 2,
+          w: width,
+          h: height,
+        };
+      }
+
+      function hydrateLegacyPixelImage(item) {
+        if (!item.pixelDataUrl || item._pixelImage) return;
+        const image = new Image();
+        item._pixelImage = image;
+        image.onload = function () {
+          if (!item._eraseMask && item.pixel && image.naturalWidth && image.naturalHeight) {
+            try {
+              const maskCanvas = document.createElement("canvas");
+              maskCanvas.width = image.naturalWidth;
+              maskCanvas.height = image.naturalHeight;
+              const maskCtx = maskCanvas.getContext("2d");
+              maskCtx.drawImage(image, 0, 0);
+              const pixels = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height).data;
+              const baseMask = new Uint8Array(maskCanvas.width * maskCanvas.height);
+              let maskedPixels = 0;
+              for (let index = 0; index < baseMask.length; index++) {
+                if (pixels[index * 4 + 3] > 20) {
+                  baseMask[index] = 1;
+                  maskedPixels += 1;
+                }
+              }
+              if (maskedPixels / Math.max(1, baseMask.length) > 0.5) {
+                item._eraseMask = null;
+                item._eraseMaskW = 0;
+                item._eraseMaskH = 0;
+                if (item.erase) updatePickStatus("legacyStatus", "旧抠字层范围过大，已保持原图不动；请点该行“重新抠字”生成安全笔画掩码", "warn");
+              } else {
+                item._eraseMask = growLegacyMask(baseMask, maskCanvas.width, maskCanvas.height, 3);
+                item._eraseMaskW = maskCanvas.width;
+                item._eraseMaskH = maskCanvas.height;
+                if (item.erase) baseRenderDirty = true;
+              }
+            } catch (error) {
+              item._eraseMask = null;
+            }
+          }
+          draw();
+        };
+        image.onerror = function () {
+          updatePickStatus("legacyStatus", "有一个原样抠字层读取失败，请重新抠出", "warn");
+        };
+        image.src = item.pixelDataUrl;
+      }
+
+      function drawLegacyTextLayers() {
+        if (!state.image) return;
+        for (const item of legacyItems) {
+          if (item.pixel) {
+            if (!item._pixelImage) hydrateLegacyPixelImage(item);
+            if (item._pixelImage && item._pixelImage.complete && item._pixelImage.naturalWidth) {
+              const box = legacyRenderBox(item);
+              ctx.save();
+              ctx.imageSmoothingEnabled = true;
+              ctx.imageSmoothingQuality = "high";
+              ctx.drawImage(item._pixelImage, box.x, box.y, box.w, box.h);
+              ctx.restore();
+            }
+            continue;
+          }
+          const text = String(item.text || "").trim();
+          if (!item.layer || !text) continue;
+          let size = clamp(Number(item.fontSize) || item.h * 0.9, 8, 240);
+          ctx.save();
+          ctx.font = (Number(item.fontWeight) || 700) + " " + size + "px " + FONT;
+          const measured = ctx.measureText(text).width;
+          const maxWidth = Math.max(16, item.w * 1.08);
+          if (measured > maxWidth) size = Math.max(8, size * maxWidth / measured);
+          ctx.font = (Number(item.fontWeight) || 700) + " " + size + "px " + FONT;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = item.color || "#ffffff";
+          ctx.shadowColor = "rgba(0,0,0,.55)";
+          ctx.shadowBlur = Math.max(5, size * 0.13);
+          ctx.shadowOffsetY = Math.max(1, size * 0.04);
+          ctx.fillText(text, item.x + item.w / 2, item.y + item.h / 2 + size * 0.015);
+          ctx.restore();
+        }
+      }
+
+      function legacyItemById(id) {
+        return legacyItems.find(function (item) { return item.id === id; }) || null;
+      }
+
+      function hitLegacyLayer(point) {
+        for (let index = legacyItems.length - 1; index >= 0; index--) {
+          const item = legacyItems[index];
+          const isTextLayer = item.layer && String(item.text || "").trim();
+          const isPixelLayer = item.pixel;
+          if (!isTextLayer && !isPixelLayer) continue;
+          const box = legacyRenderBox(item);
+          const padding = 8;
+          if (point.x >= box.x - padding && point.x <= box.x + box.w + padding && point.y >= box.y - padding && point.y <= box.y + box.h + padding) {
+            return item;
+          }
+        }
+        return null;
+      }
+
+      function selectLegacyItem(id) {
+        legacySelectedId = id;
+        document.querySelectorAll(".legacy-item").forEach(function (row) {
+          row.classList.toggle("selected", row.getAttribute("data-legacy-id") === id);
+        });
+        draw();
+      }
+
+      function updateLegacyButtons() {
+        const ocrButton = byId("legacyOcrBtn");
+        const selectButton = byId("legacySelectBtn");
+        const pixelAllButton = byId("legacyPixelAllBtn");
+        const eraseAllButton = byId("legacyEraseAllBtn");
+        const clearButton = byId("legacyClearBtn");
+        const paddingOutput = byId("legacyPaddingOut");
+        const thresholdOutput = byId("legacyThresholdOut");
+        if (paddingOutput) paddingOutput.textContent = byId("legacyPadding").value + "px";
+        if (thresholdOutput) thresholdOutput.textContent = byId("legacyThreshold").value;
+        if (ocrButton) ocrButton.disabled = !state.image || legacyOcrBusy;
+        if (selectButton) {
+          selectButton.disabled = !state.image || legacyOcrBusy;
+          selectButton.textContent = legacySelectMode ? "退出框选旧文字（已开启）" : "框选旧文字";
+          selectButton.classList.toggle("active", legacySelectMode);
+        }
+        if (pixelAllButton) pixelAllButton.disabled = legacyOcrBusy || !state.image || !legacyItems.some(function (item) { return !item.erase && !item.pixel; });
+        if (eraseAllButton) eraseAllButton.disabled = legacyOcrBusy || !legacyItems.some(function (item) { return !item.erase && !item.pixel && String(item.text || "").trim(); });
+        if (clearButton) clearButton.disabled = legacyOcrBusy || legacyItems.length === 0;
+      }
+
+      function resetLegacyItems(announce = false) {
+        legacyItems = [];
+        legacySelectedId = null;
+        legacySelectMode = false;
+        legacySelectDrag = null;
+        legacyDraftRect = null;
+        baseRenderDirty = true;
+        recolorTintDirty = true;
+        renderLegacyList();
+        if (announce) updatePickStatus("legacyStatus", "已清除全部旧文字处理，原图已恢复");
+        draw();
+      }
+
+      function ensureLegacyTextMask(item) {
+        if (!state.image) return false;
+        const previousErase = !!item.erase;
+        if (previousErase) {
+          item.erase = false;
+          renderBaseImage();
+        } else if (baseRenderDirty) {
+          renderBaseImage();
+        }
+        const margin = clamp((Number(byId("legacyPadding").value) || 0) + 4, 4, 16);
+        const cutout = buildLegacyCutout(item, margin);
+        item.erase = previousErase;
+        if (!cutout) {
+          item._eraseMask = null;
+          item._eraseMaskW = 0;
+          item._eraseMaskH = 0;
+          return false;
+        }
+        if (!Number.isFinite(Number(item.pickX))) {
+          item.pickX = Number(item.x) || 0;
+          item.pickY = Number(item.y) || 0;
+          item.pickW = Math.max(1, Number(item.w) || 1);
+          item.pickH = Math.max(1, Number(item.h) || 1);
+        }
+        item.srcX = cutout.box.x;
+        item.srcY = cutout.box.y;
+        item.srcW = cutout.box.w;
+        item.srcH = cutout.box.h;
+        item._eraseMask = cutout.mask;
+        item._eraseMaskW = cutout.box.w;
+        item._eraseMaskH = cutout.box.h;
+        return true;
+      }
+
+      function extractLegacyItem(id, eraseOnly = false) {
+        const item = legacyItemById(id);
+        if (!item) return;
+        if (!eraseOnly && !String(item.text || "").trim()) {
+          updatePickStatus("legacyStatus", "这行还没有文字，请先输入旧文字内容", "warn");
+          const input = document.querySelector('[data-legacy-text="' + id + '"]');
+          if (input) input.focus();
+          return;
+        }
+        const previousErase = !!item.erase;
+        if (previousErase) {
+          item.erase = false;
+          baseRenderDirty = true;
+        }
+        const masked = ensureLegacyTextMask(item);
+        if (!masked && !Number.isFinite(Number(item.srcX))) {
+          item.srcX = Number(item.x) || 0;
+          item.srcY = Number(item.y) || 0;
+          item.srcW = Math.max(1, Number(item.w) || 1);
+          item.srcH = Math.max(1, Number(item.h) || 1);
+        }
+        item.erase = true;
+        item.layer = !eraseOnly;
+        item.pixel = false;
+        item.pixelDataUrl = null;
+        item._pixelImage = null;
+        legacySelectedId = id;
+        baseRenderDirty = true;
+        recolorTintDirty = true;
+        renderLegacyList();
+        scheduleSave();
+        draw();
+        updatePickStatus("legacyStatus", masked
+          ? (eraseOnly ? "已只擦除文字笔画，其他画面保持原样；可随时点“恢复原图”还原" : "已擦除原字笔画并生成可编辑文字层，其他画面保持原样")
+          : (eraseOnly ? "已擦除这块旧文字；背景较复杂，建议检查后再决定是否保留" : "已生成可编辑文字层；背景填充可能不够自然，可调低灵敏度重试"),
+          masked ? "ok" : "warn");
+      }
+
+      function eraseLegacyPixelSource(id) {
+        const item = legacyItemById(id);
+        if (!item || !item.pixel || item.erase) return;
+        if (!item._eraseMask) {
+          updatePickStatus("legacyStatus", "抠字层还在加载，请稍等一秒再点“擦除原字”", "warn");
+          return;
+        }
+        item.erase = true;
+        legacySelectedId = id;
+        baseRenderDirty = true;
+        recolorTintDirty = true;
+        renderLegacyList();
+        scheduleSave();
+        draw();
+        updatePickStatus("legacyStatus", "已擦除原位置旧字，只补文字笔画，其他画面保持原样；可点“撤销擦除”还原", "ok");
+      }
+
+      function undoLegacyPixelErase(id) {
+        const item = legacyItemById(id);
+        if (!item || !item.pixel || !item.erase) return;
+        item.erase = false;
+        legacySelectedId = id;
+        baseRenderDirty = true;
+        recolorTintDirty = true;
+        renderLegacyList();
+        scheduleSave();
+        draw();
+        updatePickStatus("legacyStatus", "已撤销擦除，原图完全恢复；抠字层仍然保留", "ok");
+      }
+
+      function restoreLegacyItem(id) {
+        const item = legacyItemById(id);
+        if (!item) return;
+        item.erase = false;
+        item.layer = false;
+        item.pixel = false;
+        item.pixelDataUrl = null;
+        item._pixelImage = null;
+        item.pickX = null;
+        item.pickY = null;
+        item.pickW = null;
+        item.pickH = null;
+        item.srcX = null;
+        item.srcY = null;
+        item.srcW = null;
+        item.srcH = null;
+        item._eraseMask = null;
+        item._eraseMaskW = 0;
+        item._eraseMaskH = 0;
+        legacySelectedId = id;
+        baseRenderDirty = true;
+        recolorTintDirty = true;
+        renderLegacyList();
+        scheduleSave();
+        draw();
+        updatePickStatus("legacyStatus", "已恢复这块原图文字，可重新抠出或移除", "ok");
+      }
+
+      function legacySmoothAlpha(value, low, high) {
+        if (value <= low) return 0;
+        if (value >= high) return 1;
+        const amount = (value - low) / Math.max(1, high - low);
+        return amount * amount * (3 - 2 * amount);
+      }
+
+      function buildLegacyCutout(item, margin) {
+        if (!state.image) return null;
+        const pick = legacyPickBox(item);
+        const box = normalizeLegacyBox({ x: pick.x - margin, y: pick.y - margin, w: pick.w + margin * 2, h: pick.h + margin * 2 });
+        const sx = Math.floor(box.x);
+        const sy = Math.floor(box.y);
+        const sw = Math.max(4, Math.ceil(box.w));
+        const sh = Math.max(4, Math.ceil(box.h));
+        if (sw > canvas.width - sx || sh > canvas.height - sy) return null;
+
+        const source = baseCtx.getImageData(sx, sy, sw, sh);
+        const data = source.data;
+        const original = new Uint8ClampedArray(data);
+        const output = document.createElement("canvas");
+        output.width = sw;
+        output.height = sh;
+        const outputCtx = output.getContext("2d");
+        const targetImage = outputCtx.createImageData(sw, sh);
+        const targetData = targetImage.data;
+        const mask = new Uint8Array(sw * sh);
+        const threshold = clamp(Number(byId("legacyThreshold").value) || 42, 10, 90);
+        const low = threshold * 0.5;
+        const high = threshold * 1.75;
+        const lastX = sw - 1;
+        const lastY = sh - 1;
+        let selected = 0;
+        const colorBins = new Map();
+
+        for (let y = 1; y < lastY; y++) {
+          for (let x = 1; x < lastX; x++) {
+            const offset = (y * sw + x) * 4;
+            if (original[offset + 3] < 16) continue;
+            const red = original[offset];
+            const green = original[offset + 1];
+            const blue = original[offset + 2];
+            const key = ((red >> 4) << 8) | ((green >> 4) << 4) | (blue >> 4);
+            let entry = colorBins.get(key);
+            if (!entry) {
+              entry = { count: 0, red: 0, green: 0, blue: 0 };
+              colorBins.set(key, entry);
+            }
+            entry.count += 1;
+            entry.red += red;
+            entry.green += green;
+            entry.blue += blue;
+          }
+        }
+
+        const minimumCluster = Math.max(16, Math.round(sw * sh * 0.004));
+        const backgroundClusters = Array.from(colorBins.values())
+          .filter(function (entry) { return entry.count >= minimumCluster; })
+          .sort(function (a, b) { return b.count - a.count; })
+          .filter(function (entry) {
+            const luminance = (entry.red * 0.299 + entry.green * 0.587 + entry.blue * 0.114) / entry.count;
+            return !(luminance > 185 && entry.count < sw * sh * 0.3);
+          })
+          .slice(0, 5)
+          .map(function (entry) {
+            return {
+              count: entry.count,
+              luminance: (entry.red * 0.299 + entry.green * 0.587 + entry.blue * 0.114) / entry.count,
+              red: entry.red / entry.count,
+              green: entry.green / entry.count,
+              blue: entry.blue / entry.count,
+            };
+          });
+
+        for (let y = 1; y < lastY; y++) {
+          for (let x = 1; x < lastX; x++) {
+            const target = (y * sw + x) * 4;
+            const topOffset = x * 4;
+            const bottomOffset = (lastY * sw + x) * 4;
+            const leftOffset = y * sw * 4;
+            const rightOffset = (y * sw + lastX) * 4;
+            const topWeight = 1 / Math.max(1, y * y);
+            const bottomWeight = 1 / Math.max(1, (lastY - y) * (lastY - y));
+            const leftWeight = 1 / Math.max(1, x * x);
+            const rightWeight = 1 / Math.max(1, (lastX - x) * (lastX - x));
+            const totalWeight = topWeight + bottomWeight + leftWeight + rightWeight;
+            if (!totalWeight) continue;
+
+            const backgroundR = (original[topOffset] * topWeight + original[bottomOffset] * bottomWeight + original[leftOffset] * leftWeight + original[rightOffset] * rightWeight) / totalWeight;
+            const backgroundG = (original[topOffset + 1] * topWeight + original[bottomOffset + 1] * bottomWeight + original[leftOffset + 1] * leftWeight + original[rightOffset + 1] * rightWeight) / totalWeight;
+            const backgroundB = (original[topOffset + 2] * topWeight + original[bottomOffset + 2] * bottomWeight + original[leftOffset + 2] * leftWeight + original[rightOffset + 2] * rightWeight) / totalWeight;
+            const dr = original[target] - backgroundR;
+            const dg = original[target + 1] - backgroundG;
+            const db = original[target + 2] - backgroundB;
+            const colorDistance = Math.sqrt(dr * dr * 0.3 + dg * dg * 0.59 + db * db * 0.11);
+            let clusterDistance = Infinity;
+            for (const cluster of backgroundClusters) {
+              const cr = original[target] - cluster.red;
+              const cg = original[target + 1] - cluster.green;
+              const cb = original[target + 2] - cluster.blue;
+              const distance = Math.sqrt(cr * cr * 0.3 + cg * cg * 0.59 + cb * cb * 0.11);
+              if (distance < clusterDistance) clusterDistance = distance;
+            }
+            const contrast = Math.min(colorDistance, clusterDistance);
+            const alpha = legacySmoothAlpha(contrast, low, high);
+            if (alpha <= 0.015) continue;
+            targetData[target] = original[target];
+            targetData[target + 1] = original[target + 1];
+            targetData[target + 2] = original[target + 2];
+            targetData[target + 3] = Math.round(alpha * 255);
+            if (alpha > 0.05) mask[y * sw + x] = 1;
+            if (alpha > 0.35) selected += 1;
+          }
+        }
+
+        if (selected < 8) return null;
+        outputCtx.putImageData(targetImage, 0, 0);
+        return {
+          canvas: output,
+          mask: growLegacyMask(mask, sw, sh, 3),
+          box: { x: sx, y: sy, w: sw, h: sh },
+          selected,
+        };
+      }
+
+      function restoreLegacyPixelState(item, previous) {
+        item.x = previous.x;
+        item.y = previous.y;
+        item.w = previous.w;
+        item.h = previous.h;
+        item.pickX = previous.pickX;
+        item.pickY = previous.pickY;
+        item.pickW = previous.pickW;
+        item.pickH = previous.pickH;
+        item.srcX = previous.srcX;
+        item.srcY = previous.srcY;
+        item.srcW = previous.srcW;
+        item.srcH = previous.srcH;
+        item.pixelScale = previous.pixelScale;
+        item.pixelDataUrl = previous.pixelDataUrl;
+        item._pixelImage = previous.pixelImage;
+        item._eraseMask = previous.eraseMask;
+        item._eraseMaskW = previous.eraseMaskW;
+        item._eraseMaskH = previous.eraseMaskH;
+        item.pixel = previous.pixel;
+        item.erase = previous.erase;
+        item.layer = previous.layer;
+      }
+
+      function extractLegacyPixelItem(id) {
+        const item = legacyItemById(id);
+        if (!item || !state.image) return false;
+        if (item.erase && !item.pixel) return false;
+        const previous = {
+          x: item.x,
+          y: item.y,
+          w: item.w,
+          h: item.h,
+          pickX: item.pickX,
+          pickY: item.pickY,
+          pickW: item.pickW,
+          pickH: item.pickH,
+          srcX: item.srcX,
+          srcY: item.srcY,
+          srcW: item.srcW,
+          srcH: item.srcH,
+          pixelScale: Number(item.pixelScale) || 1,
+          pixelDataUrl: item.pixelDataUrl || null,
+          pixelImage: item._pixelImage || null,
+          eraseMask: item._eraseMask || null,
+          eraseMaskW: Number(item._eraseMaskW) || 0,
+          eraseMaskH: Number(item._eraseMaskH) || 0,
+          pixel: !!item.pixel,
+          erase: !!item.erase,
+          layer: !!item.layer,
+        };
+        const wasErased = !!item.erase;
+        if (wasErased) {
+          item.erase = false;
+          item.pixel = false;
+          item._pixelImage = null;
+        }
+        if (wasErased || baseRenderDirty) renderBaseImage();
+        const margin = clamp((Number(byId("legacyPadding").value) || 0) + 4, 4, 16);
+        const cutout = buildLegacyCutout(item, margin);
+        if (!cutout) {
+          restoreLegacyPixelState(item, previous);
+          baseRenderDirty = true;
+          draw();
+          updatePickStatus("legacyStatus", "这块没有抠出明显文字；把“抠字灵敏度”调低一点，或框选时多留一点边距再试", "warn");
+          return false;
+        }
+
+        const firstCut = !Number.isFinite(Number(item.pickX));
+        if (firstCut) {
+          item.pickX = previous.x;
+          item.pickY = previous.y;
+          item.pickW = previous.w;
+          item.pickH = previous.h;
+        }
+        item.srcX = cutout.box.x;
+        item.srcY = cutout.box.y;
+        item.srcW = cutout.box.w;
+        item.srcH = cutout.box.h;
+        if (firstCut) {
+          item.x = cutout.box.x;
+          item.y = cutout.box.y;
+          item.w = cutout.box.w;
+          item.h = cutout.box.h;
+          item.pixelScale = 1;
+        } else {
+          item.x = previous.x;
+          item.y = previous.y;
+          item.w = previous.w;
+          item.h = previous.h;
+          item.pixelScale = previous.pixelScale;
+        }
+        const eraseSource = wasErased || !!byId("legacyEraseSource").checked;
+        item.erase = eraseSource;
+        item.layer = false;
+        item.pixel = true;
+        item.pixelDataUrl = cutout.canvas.toDataURL("image/webp", 0.92);
+        if (!item.pixelDataUrl.startsWith("data:image/webp")) item.pixelDataUrl = cutout.canvas.toDataURL("image/png");
+        item._pixelImage = null;
+        item._eraseMask = cutout.mask;
+        item._eraseMaskW = cutout.box.w;
+        item._eraseMaskH = cutout.box.h;
+        hydrateLegacyPixelImage(item);
+        legacySelectedId = id;
+        baseRenderDirty = true;
+        recolorTintDirty = true;
+        renderLegacyList();
+        scheduleSave();
+        draw();
+        updatePickStatus("legacyStatus", eraseSource ? "已按原样抠出并只擦除文字笔画，其他画面保持原样；可拖动、缩放或撤销擦除" : "已按原样抠出旧字，原图未改动；拖动/缩放后再决定是否“擦除原字”", "ok");
+        return true;
+      }
+
+      function convertLegacyPixelToText(id) {
+        const item = legacyItemById(id);
+        if (!item || !item.pixel) return;
+        item.pixel = false;
+        item.pixelDataUrl = null;
+        item._pixelImage = null;
+        item.layer = true;
+        item.erase = true;
+        if (!String(item.text || "").trim()) item.text = "请修改这行文字";
+        legacySelectedId = id;
+        baseRenderDirty = true;
+        renderLegacyList();
+        scheduleSave();
+        draw();
+        updatePickStatus("legacyStatus", "已转成可改内容的文字层，并按原字笔画擦除；其他画面保持原样，可改字、颜色和字号", "ok");
+      }
+
+      function removeLegacyItem(id) {
+        const index = legacyItems.findIndex(function (item) { return item.id === id; });
+        if (index < 0) return;
+        const hadErase = legacyItems[index].erase;
+        legacyItems.splice(index, 1);
+        if (legacySelectedId === id) legacySelectedId = null;
+        if (hadErase) baseRenderDirty = true;
+        recolorTintDirty = true;
+        renderLegacyList();
+        scheduleSave();
+        draw();
+        updatePickStatus("legacyStatus", hadErase ? "已移除并恢复这块原图" : "已移除这条旧文字");
+      }
+
+      function renderLegacyList() {
+        const list = byId("legacyList");
+        if (!list) return;
+        list.replaceChildren();
+        if (!legacyItems.length) {
+          const empty = document.createElement("div");
+          empty.className = "legacy-empty";
+          empty.textContent = "还没有旧字项目。点“框选旧文字”后在右侧拖一个矩形，直接点“原样抠字”即可；想改文字内容再用“识别旧文字”。";
+          list.append(empty);
+          updateLegacyButtons();
+          return;
+        }
+
+        legacyItems.forEach(function (item, index) {
+          const row = document.createElement("div");
+          row.className = "legacy-item" + (item.id === legacySelectedId ? " selected" : "");
+          row.setAttribute("data-legacy-id", item.id);
+          row.setAttribute("data-legacy-ui", "true");
+          row.addEventListener("click", function (event) {
+            if (event.target.closest("button")) return;
+            selectLegacyItem(item.id);
+          });
+
+          const head = document.createElement("div");
+          head.className = "legacy-item-head";
+          const title = document.createElement("span");
+          const number = document.createElement("b");
+          number.textContent = "第 " + (index + 1) + " 行";
+          const stateText = item.pixel
+            ? (item.erase ? " · 原样抠字 + 已擦除" : " · 原样抠字（原图未改）")
+            : item.erase ? (item.layer ? " · 已识别改字" : " · 已擦除") : " · 待处理";
+          title.append(number, document.createTextNode(stateText));
+          head.append(title);
+
+          let textControl;
+          if (item.pixel) {
+            textControl = document.createElement("div");
+            textControl.className = "legacy-pixel-note";
+            textControl.textContent = item.erase
+              ? "原样抠字层：原字体、渐变和阴影已保留；原位置的旧字只擦除了文字笔画，其他画面没动。可拖动、缩放或撤销擦除。"
+              : "原样抠字层：原字体、渐变和阴影已保留，原图完全没有改动。可直接拖动、缩放；需要去掉原位置旧字时，点“擦除原字”。";
+          } else {
+            const input = document.createElement("input");
+            input.type = "text";
+            input.value = item.text || "";
+            input.placeholder = "输入或修改这行旧文字";
+            input.setAttribute("data-legacy-text", item.id);
+            input.addEventListener("focus", function () { selectLegacyItem(item.id); });
+            input.addEventListener("input", function () {
+              item.text = input.value;
+              if (item.layer) {
+                draw();
+                scheduleSave();
+              }
+            });
+            textControl = input;
+          }
+
+          const controls = document.createElement("div");
+          controls.className = "legacy-item-controls";
+          if (item.pixel) {
+            const scaleLabel = document.createElement("span");
+            scaleLabel.textContent = "缩放";
+            const scaleInput = document.createElement("input");
+            scaleInput.type = "number";
+            scaleInput.min = "20";
+            scaleInput.max = "300";
+            scaleInput.step = "5";
+            scaleInput.value = Math.round((Number(item.pixelScale) || 1) * 100);
+            scaleInput.title = "缩放百分比";
+            scaleInput.setAttribute("data-legacy-scale", item.id);
+            scaleInput.addEventListener("focus", function () { selectLegacyItem(item.id); });
+            scaleInput.addEventListener("input", function () {
+              item.pixelScale = clamp((Number(scaleInput.value) || 100) / 100, 0.2, 3);
+              draw();
+              scheduleSave();
+            });
+            const unit = document.createElement("span");
+            unit.textContent = "%";
+            const spacer = document.createElement("span");
+            controls.append(scaleLabel, scaleInput, unit, spacer);
+          } else {
+            const colorLabel = document.createElement("span");
+            colorLabel.textContent = "颜色";
+            const color = document.createElement("input");
+            color.type = "color";
+            color.value = item.color || "#ffffff";
+            color.setAttribute("data-legacy-color", item.id);
+            color.addEventListener("input", function () {
+              item.color = color.value;
+              draw();
+              scheduleSave();
+            });
+            const size = document.createElement("input");
+            size.type = "number";
+            size.min = "8";
+            size.max = "240";
+            size.step = "1";
+            size.value = Math.round(Number(item.fontSize) || item.h * 0.9);
+            size.title = "字号";
+            size.setAttribute("data-legacy-size", item.id);
+            size.addEventListener("focus", function () { selectLegacyItem(item.id); });
+            size.addEventListener("input", function () {
+              item.fontSize = clamp(Number(size.value) || 12, 8, 240);
+              draw();
+              scheduleSave();
+            });
+            const sizeLabel = document.createElement("span");
+            sizeLabel.textContent = "字号";
+            controls.append(colorLabel, color, sizeLabel, size);
+          }
+
+          const actions = document.createElement("div");
+          actions.className = "legacy-item-actions";
+
+          function addAction(label, action, className) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = label;
+            if (className) button.className = className;
+            button.addEventListener("click", function () {
+              if (action === "extract") extractLegacyItem(item.id, false);
+              else if (action === "pixel") extractLegacyPixelItem(item.id);
+              else if (action === "re-pixel") extractLegacyPixelItem(item.id);
+              else if (action === "convert-text") convertLegacyPixelToText(item.id);
+              else if (action === "erase-source") eraseLegacyPixelSource(item.id);
+              else if (action === "undo-erase") undoLegacyPixelErase(item.id);
+              else if (action === "erase") extractLegacyItem(item.id, true);
+              else if (action === "restore") restoreLegacyItem(item.id);
+              else if (action === "remove") removeLegacyItem(item.id);
+              else if (action === "keep-erase") {
+                item.layer = false;
+                baseRenderDirty = true;
+                recolorTintDirty = true;
+                renderLegacyList();
+                scheduleSave();
+                draw();
+                updatePickStatus("legacyStatus", "已删除替换文字，只保留原位置的擦除效果");
+              }
+            });
+            actions.append(button);
+          }
+
+          if (item.pixel) {
+            if (item.erase) {
+              addAction("撤销擦除", "undo-erase", "extract");
+              addAction("重新抠字", "re-pixel", "pixel");
+              addAction("转成可改文字", "convert-text", "extract");
+              addAction("移除并恢复原图", "remove", "danger");
+            } else {
+              addAction("擦除原字", "erase-source", "pixel");
+              addAction("重新抠字", "re-pixel", "pixel");
+              addAction("转成可改文字", "convert-text", "extract");
+              addAction("移除抠图层", "remove", "danger");
+            }
+          } else if (!item.erase) {
+            addAction("原样抠字", "pixel", "pixel");
+            addAction("识别改字", "extract", "extract");
+            addAction("只擦除", "erase");
+            addAction("移除", "remove", "danger");
+          } else if (!item.layer) {
+            addAction("添加替换文字", "extract", "extract");
+            addAction("恢复原图", "restore");
+            addAction("还原并移除", "remove", "danger");
+          } else {
+            addAction("只保留擦除", "keep-erase");
+            addAction("恢复原图", "restore");
+            addAction("还原并移除", "remove", "danger");
+          }
+
+          row.append(head, textControl, controls, actions);
+          list.append(row);
+        });
+        updateLegacyButtons();
+      }
+
+      function cancelLegacySelectMode() {
+        legacySelectMode = false;
+        legacySelectDrag = null;
+        legacyDraftRect = null;
+        updateLegacyButtons();
+      }
+
+      function setLegacySelectMode(on) {
+        if (on) {
+          setRecolorMode(false);
+          setGlowMode(false);
+        }
+        legacySelectMode = !!on && !!state.image;
+        legacySelectDrag = null;
+        legacyDraftRect = null;
+        canvas.style.cursor = legacySelectMode ? "crosshair" : "default";
+        updateLegacyButtons();
+        if (legacySelectMode) updatePickStatus("legacyStatus", "已开启：在右侧画布拖一个矩形，只框住要抠掉的那行旧文字");
+        draw();
+      }
+
+      function startLegacySelect(event) {
+        if (!legacySelectMode || !state.image) return;
+        event.preventDefault();
+        const point = canvasPoint(event);
+        legacySelectDrag = { startX: clamp(point.x, 0, canvas.width), startY: clamp(point.y, 0, canvas.height) };
+        legacyDraftRect = { x: legacySelectDrag.startX, y: legacySelectDrag.startY, w: 0, h: 0 };
+        try { canvas.setPointerCapture(event.pointerId); } catch { /* ignore */ }
+      }
+
+      function moveLegacySelect(event) {
+        if (!legacySelectDrag) return;
+        event.preventDefault();
+        const point = canvasPoint(event);
+        const x = clamp(point.x, 0, canvas.width);
+        const y = clamp(point.y, 0, canvas.height);
+        legacyDraftRect = {
+          x: Math.min(legacySelectDrag.startX, x),
+          y: Math.min(legacySelectDrag.startY, y),
+          w: Math.abs(x - legacySelectDrag.startX),
+          h: Math.abs(y - legacySelectDrag.startY),
+        };
+        draw();
+      }
+
+      function endLegacySelect(event) {
+        if (!legacySelectDrag) return;
+        try { canvas.releasePointerCapture(event.pointerId); } catch { /* ignore */ }
+        const draft = legacyDraftRect;
+        legacySelectDrag = null;
+        legacyDraftRect = null;
+        legacySelectMode = false;
+        updateLegacyButtons();
+        if (!draft || draft.w < 18 || draft.h < 14) {
+          updatePickStatus("legacyStatus", "框选太小了；请重新开启框选，拖一个能包住整行文字的矩形", "warn");
+          draw();
+          return;
+        }
+        const box = normalizeLegacyBox(draft);
+        const item = {
+          id: legacyId(),
+          text: "",
+          x: box.x,
+          y: box.y,
+          w: box.w,
+          h: box.h,
+          pickX: box.x,
+          pickY: box.y,
+          pickW: box.w,
+          pickH: box.h,
+          color: sampleLegacyTextColor(box),
+          fontSize: Math.round(clamp(box.h * 0.78, 12, 220)),
+          fontWeight: box.h >= 70 ? 800 : 700,
+          erase: false,
+          layer: false,
+        };
+        legacyItems.push(item);
+        legacySelectedId = item.id;
+        renderLegacyList();
+        scheduleSave();
+        draw();
+        updatePickStatus("legacyStatus", "已框选，正在识别框内文字；识别慢时也可以直接在左侧输入", "ok");
+        recognizeLegacyRect(item);
+      }
+
+      async function requestLegacyOcr(dataUrl) {
+        const response = await fetch("/ocr", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: dataUrl }),
+        });
+        let payload = null;
+        try { payload = await response.json(); } catch { payload = null; }
+        if (!response.ok) throw new Error((payload && payload.error) || "识别服务返回错误");
+        return payload || { lines: [] };
+      }
+
+      async function recognizeLegacyRect(item) {
+        if (!state.image || legacyOcrBusy || !legacyItemById(item.id)) return;
+        legacyOcrBusy = true;
+        updateLegacyButtons();
+        try {
+          if (baseRenderDirty) renderBaseImage();
+          const margin = 10;
+          const x = clamp(Math.floor(item.x - margin), 0, canvas.width - 1);
+          const y = clamp(Math.floor(item.y - margin), 0, canvas.height - 1);
+          const width = clamp(Math.ceil(item.w + margin * 2), 1, canvas.width - x);
+          const height = clamp(Math.ceil(item.h + margin * 2), 1, canvas.height - y);
+          const scale = clamp(900 / Math.max(width, height), 1, 3);
+          const crop = document.createElement("canvas");
+          crop.width = Math.max(1, Math.round(width * scale));
+          crop.height = Math.max(1, Math.round(height * scale));
+          const cropCtx = crop.getContext("2d");
+          cropCtx.imageSmoothingEnabled = true;
+          cropCtx.imageSmoothingQuality = "high";
+          cropCtx.drawImage(baseCanvas, x, y, width, height, 0, 0, crop.width, crop.height);
+          const result = await requestLegacyOcr(crop.toDataURL("image/png"));
+          if (!legacyItemById(item.id)) return;
+          const lines = (Array.isArray(result.lines) ? result.lines : []).map(function (line) {
+            return cleanLegacyOcrText(line.text);
+          }).filter(Boolean);
+          if (!String(item.text || "").trim() && lines.length) item.text = lines.join(" ");
+          renderLegacyList();
+          scheduleSave();
+          draw();
+          updatePickStatus("legacyStatus", lines.length ? "框内文字已识别，可直接修改后点“抠出替换”" : "框内没有识别到文字，请直接在左侧输入这行内容", lines.length ? "ok" : "warn");
+        } catch (error) {
+          updatePickStatus("legacyStatus", "框内自动识别失败：" + error.message + "；直接在左侧输入文字后再抠出也可以", "warn");
+        } finally {
+          legacyOcrBusy = false;
+          updateLegacyButtons();
+        }
+      }
+
+      async function runLegacyOcr() {
+        if (!state.image || legacyOcrBusy) return;
+        const imageAtStart = state.image;
+        legacyOcrBusy = true;
+        updateLegacyButtons();
+        updatePickStatus("legacyStatus", "正在识别旧文字，约需几秒…");
+        try {
+          if (baseRenderDirty) renderBaseImage();
+          const result = await requestLegacyOcr(baseCanvas.toDataURL("image/jpeg", 0.94));
+          if (state.image !== imageAtStart) return;
+          const lines = Array.isArray(result.lines) ? result.lines : [];
+          const added = [];
+          for (const line of lines) {
+            const candidate = legacyCandidateFromOcrLine(line);
+            if (!candidate) continue;
+            const overlaps = legacyItems.concat(added).some(function (item) {
+              return legacyOverlap(item, candidate) > 0.34;
+            });
+            if (!overlaps) added.push(candidate);
+          }
+          if (added.length) {
+            legacyItems.push.apply(legacyItems, added);
+            legacySelectedId = added[0].id;
+          }
+          renderLegacyList();
+          scheduleSave();
+          draw();
+          if (added.length) {
+            updatePickStatus("legacyStatus", "识别到 " + added.length + " 行旧文字。先核对左侧文字，再逐行或点“全部抠出替换”。", "ok");
+          } else {
+            updatePickStatus("legacyStatus", lines.length ? "识别到的文字与已有项目重复，没有新增" : "没有识别到新文字；可点“框选旧文字”手动框住后再输入", "warn");
+          }
+        } catch (error) {
+          updatePickStatus("legacyStatus", "识别失败：" + error.message + "。请确认画布服务已重启，或直接用“框选旧文字”。", "warn");
+        } finally {
+          legacyOcrBusy = false;
+          updateLegacyButtons();
+        }
+      }
+
+      function extractAllLegacyItems() {
+        let changed = 0;
+        let skipped = 0;
+        for (const item of legacyItems) {
+          if (item.erase || item.pixel) continue;
+          if (!String(item.text || "").trim()) {
+            skipped += 1;
+            continue;
+          }
+          item.erase = true;
+          item.layer = true;
+          changed += 1;
+        }
+        if (!changed) {
+          updatePickStatus("legacyStatus", "没有可抠出的文字；请先识别或框选并输入内容", "warn");
+          return;
+        }
+        baseRenderDirty = true;
+        recolorTintDirty = true;
+        renderLegacyList();
+        scheduleSave();
+        draw();
+        updatePickStatus("legacyStatus", "已识别并生成 " + changed + " 行替换文字" + (skipped ? "；有 " + skipped + " 行为空未处理" : "") + "，文字可继续修改或删除", "ok");
+      }
+
+      function extractAllLegacyPixels() {
+        const pending = legacyItems.filter(function (item) { return !item.erase && !item.pixel; });
+        if (!pending.length) {
+          updatePickStatus("legacyStatus", "没有待处理的旧文字框；可先识别或框选旧文字", "warn");
+          return;
+        }
+        let changed = 0;
+        let failed = 0;
+        for (const item of pending) {
+          if (extractLegacyPixelItem(item.id)) changed += 1;
+          else failed += 1;
+        }
+        if (!changed) {
+          updatePickStatus("legacyStatus", "没有抠出文字；把“抠字灵敏度”调低一点再试", "warn");
+          return;
+        }
+        baseRenderDirty = true;
+        recolorTintDirty = true;
+        renderLegacyList();
+        scheduleSave();
+        draw();
+        updatePickStatus("legacyStatus", "已原样抠出 " + changed + " 行" + (failed ? "；" + failed + " 行没有抠出明显文字，可降低灵敏度后点“重新抠字”重试" : "") + "。", failed ? "warn" : "ok");
+      }
+
+      function rebuildRecolorMaskFromSelections(announce = false) {
+        recolorMaskData = unionRegionMasks(recolorSelections, Number(byId("recolorTolerance").value));
+        maskImageData.data.fill(0);
+        if (!recolorMaskData) {
+          maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+          recolorHasMask = false;
+          recolorTintDirty = true;
+          updateRecolorActions();
+          if (announce) updatePickStatus("recolorPickStatus", "没有识别到区域，请点击脚垫中间再试", "warn");
+          return false;
+        }
+        for (let index = 0; index < recolorMaskData.length; index++) {
+          if (recolorMaskData[index]) maskImageData.data[index * 4 + 3] = 255;
+        }
+        maskCtx.putImageData(maskImageData, 0, 0);
+        recolorHasMask = true;
+        recolorTintDirty = true;
+        updateRecolorActions();
+        if (announce) {
+          const percent = selectionPercent(recolorMaskData).toFixed(1);
+          updatePickStatus("recolorPickStatus", "已自动选中 " + percent + "% 区域；共 " + recolorSelections.length + " 处。识别不准时调小或调大「识别范围」。", "ok");
+        }
+        return true;
+      }
+
+      function resetRecolorMask(announce = false) {
+        recolorSelections = [];
+        recolorMaskData = null;
+        maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+        recolorHasMask = false;
+        recolorTintDirty = true;
+        updateRecolorActions();
+        if (announce) updatePickStatus("recolorPickStatus", "已清除全部改色选区");
+      }
+
+      function updateRecolorActions() {
+        const undo = byId("recolorUndoBtn");
+        const clear = byId("recolorClearBtn");
+        if (undo) undo.disabled = recolorSelections.length === 0;
+        if (clear) clear.disabled = recolorSelections.length === 0;
+      }
+
+      function setRecolorMode(on) {
+        if (on) {
+          cancelLegacySelectMode();
+          setGlowMode(false);
+        }
+        recolorMode = !!on && !!state.image;
+        byId("recolorModeBtn").textContent = recolorMode ? "退出点选改色（已开启）" : "开启点选改色";
+        byId("recolorModeBtn").classList.toggle("active", recolorMode);
+        canvas.style.cursor = recolorMode ? "crosshair" : "default";
+        if (recolorMode) updatePickStatus("recolorPickStatus", "已开启：直接在右侧图片里点脚垫，不用涂抹");
+      }
+
+      function handleRecolorPick(event) {
+        if (!recolorMode || !state.image) return;
+        event.preventDefault();
+        const seed = canvasPoint(event);
+        const region = regionAt(seed, Number(byId("recolorTolerance").value));
+        if (!region || region.count < 220 || region.count > region.mask.length * 0.9) {
+          updatePickStatus("recolorPickStatus", "识别范围不合适：请点在脚垫中间；识别太大就调小「识别范围」", "warn");
+          return;
+        }
+        recolorSelections.push({ x: seed.x, y: seed.y });
+        rebuildRecolorMaskFromSelections(true);
+        scheduleSave();
+        draw();
+      }
+
+      function requestGlowDraw() {
+        if (glowFrame) return;
+        glowFrame = requestAnimationFrame(function () {
+          glowFrame = null;
+          draw();
+        });
+      }
+
+      function glowStyle() {
+        return {
+          color: byId("glowColor").value,
+          width: Number(byId("glowWidth").value),
+          spread: Number(byId("glowSpread").value),
+          intensity: Number(byId("glowIntensity").value) / 100,
+          opacity: Number(byId("glowOpacity").value) / 100,
+        };
+      }
+
+      function traceGlowPath(points) {
+        if (!points.length) return;
+        ctx.beginPath();
+        if (points.length === 1) {
+          ctx.arc(points[0].x, points[0].y, 0.1, 0, Math.PI * 2);
+          return;
+        }
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length - 1; i++) {
+          const current = points[i];
+          const next = points[i + 1];
+          const midX = (current.x + next.x) / 2;
+          const midY = (current.y + next.y) / 2;
+          ctx.quadraticCurveTo(current.x, current.y, midX, midY);
+        }
+        const last = points[points.length - 1];
+        ctx.lineTo(last.x, last.y);
+      }
+
+      function drawGlowLine(points) {
+        const style = glowStyle();
+        if (points.length < 2 || style.opacity <= 0) return;
+        ctx.save();
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.shadowColor = style.color;
+        ctx.strokeStyle = style.color;
+        ctx.globalCompositeOperation = "lighter";
+
+        ctx.globalAlpha = style.opacity * 0.16 * style.intensity;
+        ctx.lineWidth = style.width + style.spread * 1.35;
+        ctx.shadowBlur = style.spread * 1.15;
+        traceGlowPath(points);
+        ctx.stroke();
+
+        ctx.globalAlpha = style.opacity * 0.5 * style.intensity;
+        ctx.lineWidth = style.width + style.spread * 0.45;
+        ctx.shadowBlur = style.spread * 0.68;
+        traceGlowPath(points);
+        ctx.stroke();
+
+        ctx.globalCompositeOperation = "source-over";
+        ctx.globalAlpha = style.opacity;
+        ctx.lineWidth = style.width;
+        ctx.shadowBlur = style.spread * 0.3 * style.intensity;
+        ctx.strokeStyle = shadeColor(style.color, 0.28);
+        traceGlowPath(points);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawGlowLines() {
+        for (const line of glowLines) drawGlowLine(line.points);
+        if (glowCurrent.length >= 2) drawGlowLine(glowCurrent);
+      }
+
+      function updateGlowActions() {
+        const finish = byId("glowFinishBtn");
+        const undo = byId("glowUndoBtn");
+        const clear = byId("glowClearBtn");
+        if (finish) finish.disabled = glowCurrent.length < 2;
+        if (undo) undo.disabled = glowLines.length === 0 && glowCurrent.length === 0;
+        if (clear) clear.disabled = glowLines.length === 0 && glowCurrent.length === 0;
+      }
+
+      function resetGlowLines(announce = false) {
+        glowLines = [];
+        glowCurrent = [];
+        updateGlowActions();
+        if (announce) updatePickStatus("glowPickStatus", "已清除全部灯线");
+      }
+
+      function finishGlowLine(announce = true) {
+        if (glowCurrent.length < 2) {
+          if (announce) updatePickStatus("glowPickStatus", "至少点 2 个节点才能连成一条灯线", "warn");
+          return false;
+        }
+        glowLines.push({ points: clonePoints(glowCurrent) });
+        glowCurrent = [];
+        updateGlowActions();
+        if (announce) updatePickStatus("glowPickStatus", "已完成第 " + glowLines.length + " 条灯线；继续点节点可画下一条", "ok");
+        scheduleSave();
+        draw();
+        return true;
+      }
+
+      function setGlowMode(on) {
+        if (on) {
+          cancelLegacySelectMode();
+          setRecolorMode(false);
+        }
+        if (!on && glowCurrent.length >= 2) finishGlowLine(false);
+        if (!on) {
+          glowCurrent = [];
+          glowDrag = null;
+        }
+        glowMode = !!on && !!state.image;
+        const button = byId("glowModeBtn");
+        if (button) {
+          button.textContent = glowMode ? "退出点选灯线（已开启）" : "开启点选灯线";
+          button.classList.toggle("active", glowMode);
+        }
+        canvas.style.cursor = glowMode ? "crosshair" : "default";
+        updateGlowActions();
+        if (glowMode) updatePickStatus("glowPickStatus", "已开启：按顺序点节点，点完按「完成当前灯线」");
+        draw();
+      }
+
+      function handleGlowPick(event) {
+        if (!glowMode || !state.image) return;
+        event.preventDefault();
+        const rawPoint = canvasPoint(event);
+        const point = { x: clamp(rawPoint.x, 0, canvas.width), y: clamp(rawPoint.y, 0, canvas.height) };
+        const node = findGlowNode(point);
+        if (node) {
+          glowDrag = node;
+          try { canvas.setPointerCapture(event.pointerId); } catch { /* ignore */ }
+          canvas.style.cursor = "grabbing";
+          return;
+        }
+        glowCurrent.push(point);
+        updateGlowActions();
+        updatePickStatus("glowPickStatus", "已添加 " + glowCurrent.length + " 个节点；继续点，完成后按「完成当前灯线」", "ok");
+        scheduleSave();
+        requestGlowDraw();
+      }
+
+      function moveGlowNode(event) {
+        if (!glowMode || !state.image) return;
+        const rawPoint = canvasPoint(event);
+        const point = { x: clamp(rawPoint.x, 0, canvas.width), y: clamp(rawPoint.y, 0, canvas.height) };
+        if (glowDrag) {
+          event.preventDefault();
+          glowDrag.points[glowDrag.index] = point;
+          requestGlowDraw();
+          return;
+        }
+        canvas.style.cursor = findGlowNode(point) ? "grab" : "crosshair";
+      }
+
+      function endGlowNode(event) {
+        if (!glowDrag) return;
+        glowDrag = null;
+        try { canvas.releasePointerCapture(event.pointerId); } catch { /* ignore */ }
+        canvas.style.cursor = "crosshair";
+        scheduleSave();
+        draw();
+      }
+
+      function setSaveStatus(text, warn = false) {
+        const status = byId("saveStatus");
+        if (!status) return;
+        status.textContent = text;
+        status.classList.toggle("warn", !!warn);
+      }
+
+      function collectFormFields() {
+        const fields = {};
+        document.querySelectorAll(".panel input, .panel select").forEach(function (element) {
+          if (!element.id || element.type === "file") return;
+          if (element.closest("[data-legacy-ui]")) return;
+          fields[element.id] = element.type === "checkbox" ? element.checked : element.value;
+        });
+        return fields;
+      }
+
+      function clonePoints(points) {
+        return (Array.isArray(points) ? points : []).map(function (point) {
+          return { x: Number(point.x) || 0, y: Number(point.y) || 0 };
+        });
+      }
+
+      function encodeImageForStorage() {
+        if (!state.image) return null;
+        if (cachedImageSource === state.image && cachedImageDataUrl) return cachedImageDataUrl;
+        const image = state.image;
+        let dataUrl = null;
+        for (const preset of [[1600, 0.9], [1400, 0.84], [1200, 0.78]]) {
+          const maxSide = preset[0];
+          const quality = preset[1];
+          const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+          const output = document.createElement("canvas");
+          output.width = Math.max(1, Math.round(image.width * scale));
+          output.height = Math.max(1, Math.round(image.height * scale));
+          const outputCtx = output.getContext("2d");
+          outputCtx.imageSmoothingEnabled = true;
+          outputCtx.imageSmoothingQuality = "high";
+          outputCtx.drawImage(image, 0, 0, output.width, output.height);
+          dataUrl = output.toDataURL("image/webp", quality);
+          if (!dataUrl.startsWith("data:image/webp")) dataUrl = output.toDataURL("image/jpeg", quality);
+          if (dataUrl.length < 3500000) break;
+        }
+        cachedImageSource = image;
+        cachedImageDataUrl = dataUrl;
+        return dataUrl;
+      }
+
+      function saveStateNow(manual = false) {
+        if (restoringState || saveInFlight) return false;
+        saveInFlight = true;
+        const button = byId("saveBtn");
+        if (button) button.disabled = true;
+        setSaveStatus(manual ? "正在保存…" : "自动保存中…");
+        try {
+          const imageDataUrl = encodeImageForStorage();
+          const payload = {
+            version: 6,
+            savedAt: Date.now(),
+            fields: collectFormFields(),
+            bannerCount,
+            offsets: Object.fromEntries(Object.entries(offsets).map(function ([key, value]) {
+              return [key, { x: value.x, y: value.y }];
+            })),
+            recolorSelections: recolorSelections.map(function (selection) {
+              return { x: Number(selection.x) || 0, y: Number(selection.y) || 0 };
+            }),
+            glowLines: glowLines.map(function (line) {
+              return { points: clonePoints(line.points) };
+            }),
+            glowCurrent: clonePoints(glowCurrent),
+            legacyItems: legacyItems.map(function (item) {
+              return {
+                id: String(item.id || legacyId()),
+                text: String(item.text || ""),
+                x: Number(item.x) || 0,
+                y: Number(item.y) || 0,
+                w: Number(item.w) || 1,
+                h: Number(item.h) || 1,
+                pickX: item.pickX != null && Number.isFinite(Number(item.pickX)) ? Number(item.pickX) : null,
+                pickY: item.pickY != null && Number.isFinite(Number(item.pickY)) ? Number(item.pickY) : null,
+                pickW: item.pickW != null && Number.isFinite(Number(item.pickW)) ? Number(item.pickW) : null,
+                pickH: item.pickH != null && Number.isFinite(Number(item.pickH)) ? Number(item.pickH) : null,
+                srcX: item.srcX != null && Number.isFinite(Number(item.srcX)) ? Number(item.srcX) : null,
+                srcY: item.srcY != null && Number.isFinite(Number(item.srcY)) ? Number(item.srcY) : null,
+                srcW: item.srcW != null && Number.isFinite(Number(item.srcW)) ? Number(item.srcW) : null,
+                srcH: item.srcH != null && Number.isFinite(Number(item.srcH)) ? Number(item.srcH) : null,
+                color: item.color || "#ffffff",
+                fontSize: clamp(Number(item.fontSize) || 12, 8, 240),
+                fontWeight: Number(item.fontWeight) || 700,
+                erase: !!item.erase,
+                layer: !!item.layer,
+                pixel: !!item.pixel,
+                pixelScale: clamp(Number(item.pixelScale) || 1, 0.2, 3),
+                pixelDataUrl: item.pixel ? String(item.pixelDataUrl || "") : null,
+                eraseMask: item._eraseMask ? encodeLegacyMask(item._eraseMask) : null,
+                eraseMaskW: Number(item._eraseMaskW) || 0,
+                eraseMaskH: Number(item._eraseMaskH) || 0,
+              };
+            }),
+            legacySelectedId: legacySelectedId,
+            image: imageDataUrl ? { name: state.imageName, dataUrl: imageDataUrl } : null,
+          };
+          localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+          setSaveStatus(manual ? "已保存 · 刷新后自动恢复" : "已自动保存 · 刷新后自动恢复");
+          return true;
+        } catch (error) {
+          setSaveStatus("保存失败：图片过大或浏览器存储空间不足", true);
+          return false;
+        } finally {
+          saveInFlight = false;
+          if (button) button.disabled = false;
+        }
+      }
+
+      function scheduleSave() {
+        if (restoringState) return;
+        if (saveTimer) clearTimeout(saveTimer);
+        setSaveStatus("正在自动保存…");
+        saveTimer = setTimeout(function () {
+          saveTimer = null;
+          saveStateNow(false);
+        }, 450);
+      }
+
+      function syncRecolorOutputs() {
+        byId("imageSharpenOut").textContent = byId("imageSharpen").value + "%";
+        byId("recolorStrengthOut").textContent = byId("recolorStrength").value + "%";
+        byId("recolorToleranceOut").textContent = byId("recolorTolerance").value;
+        byId("recolorFeatherOut").textContent = byId("recolorFeather").value + "px";
+        byId("recolorLightOut").textContent = byId("recolorLight").value;
+        byId("legacyPaddingOut").textContent = byId("legacyPadding").value + "px";
+        byId("legacyThresholdOut").textContent = byId("legacyThreshold").value;
+      }
+
+      function updateImageQualityStatus() {
+        if (!state.image) {
+          updatePickStatus("imageQualityStatus", "上传图片后显示原图分辨率");
+          return;
+        }
+        const width = state.image.naturalWidth || state.image.width;
+        const height = state.image.naturalHeight || state.image.height;
+        const scale = Math.max(canvas.width / width, canvas.height / height);
+        if (scale > 1.02) {
+          updatePickStatus("imageQualityStatus", "原图 " + width + "×" + height + "，在 1440 方形画布中需放大 " + scale.toFixed(2) + " 倍；锐化只能改善边缘，建议上传 1440 以上底图。", "warn");
+        } else {
+          updatePickStatus("imageQualityStatus", "原图 " + width + "×" + height + "，分辨率足够；当前只做轻微清晰增强。", "ok");
+        }
+      }
+
+      function restoreLegacyItems(list) {
+        const seen = new Set();
+        legacyItems = (Array.isArray(list) ? list : []).filter(function (item) {
+          return item && Number.isFinite(Number(item.x)) && Number.isFinite(Number(item.y));
+        }).map(function (item) {
+          const box = normalizeLegacyBox(item);
+          let id = String(item.id || legacyId());
+          if (seen.has(id)) id = legacyId();
+          seen.add(id);
+          const color = /^#[0-9a-f]{6}$/i.test(String(item.color || "")) ? item.color : "#ffffff";
+          const erase = !!item.erase;
+          const pixel = !!item.pixel && !!item.pixelDataUrl && String(item.pixelDataUrl).startsWith("data:image/");
+          const maskWidth = Math.max(0, Math.round(Number(item.eraseMaskW) || 0));
+          const maskHeight = Math.max(0, Math.round(Number(item.eraseMaskH) || 0));
+          const savedMask = maskWidth > 0 && maskHeight > 0
+            ? decodeLegacyMask(item.eraseMask, maskWidth * maskHeight)
+            : null;
+          return {
+            id,
+            text: String(item.text || ""),
+            x: box.x,
+            y: box.y,
+            w: box.w,
+            h: box.h,
+            pickX: item.pickX != null && Number.isFinite(Number(item.pickX)) ? Number(item.pickX) : null,
+            pickY: item.pickY != null && Number.isFinite(Number(item.pickY)) ? Number(item.pickY) : null,
+            pickW: item.pickW != null && Number.isFinite(Number(item.pickW)) ? Number(item.pickW) : null,
+            pickH: item.pickH != null && Number.isFinite(Number(item.pickH)) ? Number(item.pickH) : null,
+            srcX: item.srcX != null && Number.isFinite(Number(item.srcX)) ? Number(item.srcX) : null,
+            srcY: item.srcY != null && Number.isFinite(Number(item.srcY)) ? Number(item.srcY) : null,
+            srcW: item.srcW != null && Number.isFinite(Number(item.srcW)) ? Number(item.srcW) : null,
+            srcH: item.srcH != null && Number.isFinite(Number(item.srcH)) ? Number(item.srcH) : null,
+            color,
+            fontSize: clamp(Number(item.fontSize) || box.h * 0.9, 8, 240),
+            fontWeight: [400, 500, 600, 700, 800, 900].includes(Number(item.fontWeight)) ? Number(item.fontWeight) : 700,
+            erase,
+            layer: !pixel && erase && !!item.layer,
+            pixel,
+            pixelScale: clamp(Number(item.pixelScale) || 1, 0.2, 3),
+            pixelDataUrl: pixel ? String(item.pixelDataUrl) : null,
+            _pixelImage: null,
+            _eraseMask: savedMask,
+            _eraseMaskW: savedMask ? maskWidth : 0,
+            _eraseMaskH: savedMask ? maskHeight : 0,
+          };
+        });
+        legacyItems.forEach(hydrateLegacyPixelImage);
+      }
+
+      function restoreSavedState() {
+        let saved = null;
+        try {
+          const raw = localStorage.getItem(SAVE_KEY);
+          if (raw) saved = JSON.parse(raw);
+        } catch (error) {
+          saved = null;
+        }
+        if (!saved || !saved.fields) {
+          draw();
+          return;
+        }
+        restoringState = true;
+        try {
+          const wantedCount = clamp(Math.round(Number(saved.bannerCount) || 3), 3, MAX_BANNERS);
+          while (bannerCount < wantedCount) addBannerRow(true);
+          while (bannerCount > wantedCount) removeLastBanner(true);
+
+          Object.entries(saved.fields).forEach(function ([id, value]) {
+            const element = byId(id);
+            if (!element) return;
+            if (element.type === "checkbox") element.checked = !!value;
+            else element.value = value;
+          });
+
+          for (const key of Object.keys(offsets)) delete offsets[key];
+          for (let index = 1; index <= bannerCount; index++) offsets["banner" + index] = { x: 0, y: 0 };
+          offsets.headline = { x: 0, y: 0 };
+          offsets.subline = { x: 0, y: 0 };
+          offsets.points = { x: 0, y: 0 };
+          if (saved.offsets) {
+            Object.entries(saved.offsets).forEach(function ([key, value]) {
+              if (!value || !Number.isFinite(Number(value.x)) || !Number.isFinite(Number(value.y))) return;
+              offsets[key] = { x: Number(value.x), y: Number(value.y) };
+            });
+          }
+
+          restoreLegacyItems(saved.legacyItems);
+          legacySelectedId = saved.legacySelectedId && legacyItemById(String(saved.legacySelectedId)) ? String(saved.legacySelectedId) : null;
+
+          function restoreSelections(list) {
+            return (Array.isArray(list) ? list : []).filter(function (selection) {
+              return selection && Number.isFinite(Number(selection.x)) && Number.isFinite(Number(selection.y));
+            }).map(function (selection) {
+              return { x: clamp(Number(selection.x), 0, canvas.width - 1), y: clamp(Number(selection.y), 0, canvas.height - 1) };
+            });
+          }
+
+          function restoreLines(list) {
+            return (Array.isArray(list) ? list : []).filter(function (line) {
+              return line && Array.isArray(line.points) && line.points.length >= 2;
+            }).map(function (line) {
+              return { points: restoreSelections(line.points) };
+            }).filter(function (line) {
+              return line.points.length >= 2;
+            });
+          }
+
+          resetRecolorMask(false);
+          resetGlowLines(false);
+          recolorSelections = restoreSelections(saved.recolorSelections);
+          glowLines = restoreLines(saved.glowLines);
+          glowCurrent = restoreSelections(saved.glowCurrent);
+          updateRecolorActions();
+          updateGlowActions();
+
+          syncRangeOutputs();
+          syncRecolorOutputs();
+          syncGlowOutputs();
+          setRecolorMode(false);
+          setGlowMode(false);
+          renderLegacyList();
+          updateLegacyButtons();
+
+          if (saved.image && saved.image.dataUrl) {
+            const savedName = saved.image.name || "上次保存的图片";
+            fileName.textContent = savedName;
+            const image = new Image();
+            image.onload = function () {
+              state.image = image;
+              state.imageName = savedName;
+              cachedImageSource = image;
+              cachedImageDataUrl = saved.image.dataUrl;
+              baseRenderDirty = true;
+              refreshSourceImageData();
+              legacyItems.forEach(function (item) {
+                if (item.erase && !item.pixel && !item._eraseMask) {
+                  ensureLegacyTextMask(item);
+                }
+              });
+              baseRenderDirty = true;
+              rebuildRecolorMaskFromSelections(false);
+              if (recolorSelections.length) {
+                updatePickStatus("recolorPickStatus", "已恢复上次点选的 " + recolorSelections.length + " 处改色区域", "ok");
+              }
+              if (glowLines.length) {
+                updatePickStatus("glowPickStatus", "已恢复上次完成的 " + glowLines.length + " 条灯线", "ok");
+              }
+              byId("recolorModeBtn").disabled = false;
+              byId("glowModeBtn").disabled = false;
+              updateLegacyButtons();
+              updateImageQualityStatus();
+              draw();
+            };
+            image.onerror = function () {
+              fileName.textContent = "上次保存的图片读取失败，请重新上传";
+            };
+            image.src = saved.image.dataUrl;
+          }
+          setSaveStatus("已恢复上次保存 · 继续编辑会自动保存");
+        } catch (error) {
+          setSaveStatus("上次保存读取失败，已使用默认设置", true);
+        } finally {
+          restoringState = false;
+        }
+        draw();
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (state.image) {
+          drawCover(state.image);
+          drawRecolor();
+        } else {
+          drawPlaceholder();
+        }
+
+        if (state.image) {
+          const top = ctx.createLinearGradient(0, 0, 0, 470);
+          top.addColorStop(0, "rgba(0,0,0,.68)");
+          top.addColorStop(0.55, "rgba(0,0,0,.34)");
+          top.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = top;
+          ctx.fillRect(0, 0, canvas.width, 470);
+
+          const bottom = ctx.createLinearGradient(0, 980, 0, 1440);
+          bottom.addColorStop(0, "rgba(0,0,0,0)");
+          bottom.addColorStop(0.55, "rgba(0,0,0,.36)");
+          bottom.addColorStop(1, "rgba(0,0,0,.78)");
+          ctx.fillStyle = bottom;
+          ctx.fillRect(0, 980, canvas.width, 460);
+        }
+
+        if (state.image) drawGlowLines();
+        if (state.image) drawLegacyTextLayers();
+
+        baseBoxes = {};
+        hitBoxes = {};
+
+        const headline1 = byId("headline1").value.trim();
+        const headline2 = byId("headline2").value.trim();
+        const subline = byId("subline").value.trim();
+
+        let bannerBottom = 54;
+        for (let bannerIndex = 1; bannerIndex <= bannerCount; bannerIndex++) {
+          const key = "banner" + bannerIndex;
+          const text = byId(`${key}Text`).value.trim();
+          if (!text) continue;
+          const style = byId(`${key}Style`).value;
+          const bgColor = byId(`${key}Bg`).value;
+          const textColor = byId(`${key}TextColor`).value;
+          const result = drawBanner(text, canvas.width / 2, bannerBottom, style, bgColor, textColor, offsets[key], byId(key + "Width").value / 100, byId(key + "Height").value / 100);
+          baseBoxes[key] = result.base;
+          hitBoxes[key] = result.hit;
+          bannerBottom += result.base.h + 14;
+        }
+
+        const headlineBaseY = Math.max(196, bannerBottom + 56);
+        let cursorY = headlineBaseY + (headline2 ? 0 : 28);
+        if (headline1) {
+          const result = drawText(headline1, canvas.width / 2, cursorY, 1280, 96, 800, byId("headlineColor").value, offsets.headline);
+          baseBoxes.headline = padBox(result.base, 18);
+          hitBoxes.headline = padBox(result.hit, 18);
+          cursorY += 104;
+        }
+        if (headline2) {
+          const result = drawText(headline2, canvas.width / 2, cursorY, 1280, 92, 800, byId("headlineColor").value, offsets.headline);
+          baseBoxes.headline = union(baseBoxes.headline, padBox(result.base, 18));
+          hitBoxes.headline = union(hitBoxes.headline, padBox(result.hit, 18));
+          cursorY += 100;
+        }
+        if (subline) {
+          const result = drawText(subline, canvas.width / 2, cursorY + 18, 1180, 42, 600, byId("sublineColor").value, offsets.subline);
+          baseBoxes.subline = padBox(result.base, 14);
+          hitBoxes.subline = padBox(result.hit, 14);
+        }
+
+        if (showPoints.checked) {
+          const points = [byId("point1").value.trim(), byId("point2").value.trim(), byId("point3").value.trim(), byId("point4").value.trim()].filter(Boolean);
+          if (points.length) {
+            const barW = 320;
+            const gap = 16;
+            const total = points.length * barW + (points.length - 1) * gap;
+            const baseX = (canvas.width - total) / 2;
+            const baseY = 1272;
+            let x = baseX + offsets.points.x;
+            const y = baseY + offsets.points.y;
+            for (const point of points) {
+              drawTextBand(point, x, y, barW, 82, 28, byId("pointsBgColor").value, byId("pointsTextColor").value);
+              x += barW + gap;
+            }
+            baseBoxes.points = { x: baseX, y: baseY, w: total, h: 82 };
+            hitBoxes.points = { x: baseX + offsets.points.x, y: baseY + offsets.points.y, w: total, h: 82 };
+          }
+        }
+        drawGlowHandles();
+      }
+
+      function glowNodeEntries() {
+        const entries = [];
+        for (const line of glowLines) {
+          for (let index = 0; index < line.points.length; index++) {
+            entries.push({ points: line.points, index, active: false });
+          }
+        }
+        for (let index = 0; index < glowCurrent.length; index++) {
+          entries.push({ points: glowCurrent, index, active: true });
+        }
+        return entries;
+      }
+
+      function findGlowNode(point) {
+        let best = null;
+        let bestDistance = 24;
+        for (const entry of glowNodeEntries()) {
+          const node = entry.points[entry.index];
+          const distance = Math.hypot(node.x - point.x, node.y - point.y);
+          if (distance < bestDistance) {
+            bestDistance = distance;
+            best = entry;
+          }
+        }
+        return best;
+      }
+
+      function drawGlowHandles() {
+        glowOverlayCtx.clearRect(0, 0, glowOverlay.width, glowOverlay.height);
+        if (glowMode && state.image) {
+          for (const entry of glowNodeEntries()) {
+            const point = entry.points[entry.index];
+            glowOverlayCtx.save();
+            glowOverlayCtx.beginPath();
+            glowOverlayCtx.arc(point.x, point.y, 8, 0, Math.PI * 2);
+            glowOverlayCtx.fillStyle = entry.active ? "#8ff0c8" : "#ffffff";
+            glowOverlayCtx.fill();
+            glowOverlayCtx.lineWidth = 3;
+            glowOverlayCtx.strokeStyle = byId("glowColor").value;
+            glowOverlayCtx.stroke();
+            glowOverlayCtx.restore();
+          }
+        }
+
+        if (state.image && byId("legacyShowMarks").checked) {
+          legacyItems.forEach(function (item, index) {
+            const box = legacyRenderBox(item);
+            const selected = item.id === legacySelectedId;
+            const stroke = selected ? "#69dcff" : item.pixel ? (item.erase ? "#ffd992" : "#ffcf70") : item.erase ? (item.layer ? "#8ff0c8" : "#ff9fba") : "#ffd992";
+            glowOverlayCtx.save();
+            if (selected) {
+              glowOverlayCtx.fillStyle = "rgba(105,220,255,.10)";
+              glowOverlayCtx.fillRect(box.x, box.y, box.w, box.h);
+            }
+            glowOverlayCtx.setLineDash(item.erase ? [] : [7, 5]);
+            glowOverlayCtx.lineWidth = selected ? 4 : 2.5;
+            glowOverlayCtx.strokeStyle = stroke;
+            glowOverlayCtx.strokeRect(box.x, box.y, box.w, box.h);
+            glowOverlayCtx.setLineDash([]);
+            const label = (index + 1) + " " + (item.pixel ? (item.erase ? "原样抠字 + 已擦除" : "原样抠字（原图未改）") : item.erase ? (item.layer ? "已抠出" : "已擦除") : "待处理");
+            glowOverlayCtx.font = "700 24px " + FONT;
+            const labelWidth = glowOverlayCtx.measureText(label).width + 14;
+            const labelY = box.y >= 32 ? box.y - 30 : box.y + 3;
+            glowOverlayCtx.fillStyle = "rgba(5,10,16,.82)";
+            glowOverlayCtx.fillRect(box.x, labelY, labelWidth, 28);
+            glowOverlayCtx.fillStyle = stroke;
+            glowOverlayCtx.textAlign = "left";
+            glowOverlayCtx.textBaseline = "middle";
+            glowOverlayCtx.fillText(label, box.x + 7, labelY + 14);
+            glowOverlayCtx.restore();
+          });
+        }
+
+        if (legacyDraftRect) {
+          glowOverlayCtx.save();
+          glowOverlayCtx.fillStyle = "rgba(105,220,255,.13)";
+          glowOverlayCtx.strokeStyle = "#69dcff";
+          glowOverlayCtx.lineWidth = 3;
+          glowOverlayCtx.setLineDash([8, 5]);
+          glowOverlayCtx.fillRect(legacyDraftRect.x, legacyDraftRect.y, legacyDraftRect.w, legacyDraftRect.h);
+          glowOverlayCtx.strokeRect(legacyDraftRect.x, legacyDraftRect.y, legacyDraftRect.w, legacyDraftRect.h);
+          glowOverlayCtx.restore();
+        }
+      }
+
+      function canvasPoint(event) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: (event.clientX - rect.left) * canvas.width / rect.width,
+          y: (event.clientY - rect.top) * canvas.height / rect.height,
+        };
+      }
+
+      function hitTest(point) {
+        for (const key of ["points", "subline", "headline"]) {
+          const box = hitBoxes[key];
+          if (box && point.x >= box.x && point.x <= box.x + box.w && point.y >= box.y && point.y <= box.y + box.h) {
+            return key;
+          }
+        }
+        for (let bannerIndex = bannerCount; bannerIndex >= 1; bannerIndex--) {
+          const key = "banner" + bannerIndex;
+          const box = hitBoxes[key];
+          if (box && point.x >= box.x && point.x <= box.x + box.w && point.y >= box.y && point.y <= box.y + box.h) {
+            return key;
+          }
+        }
+        return null;
+      }
+
+      function endDrag(event) {
+        if (!drag) return;
+        drag = null;
+        try { canvas.releasePointerCapture(event.pointerId); } catch { /* ignore */ }
+        canvas.style.cursor = "default";
+        scheduleSave();
+      }
+
+      function loadFile(file) {
+        if (!file || !file.type.startsWith("image/")) return;
+        const url = URL.createObjectURL(file);
+        const image = new Image();
+        image.onload = () => {
+          state.image = image;
+          state.imageName = file.name;
+          fileName.textContent = file.name;
+          URL.revokeObjectURL(url);
+          baseRenderDirty = true;
+          refreshSourceImageData();
+          resetRecolorMask();
+          resetGlowLines();
+          resetLegacyItems();
+          byId("recolorModeBtn").disabled = false;
+          byId("glowModeBtn").disabled = false;
+          updateLegacyButtons();
+          updateImageQualityStatus();
+          setRecolorMode(false);
+          setGlowMode(false);
+          draw();
+          scheduleSave();
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(url);
+          fileName.textContent = "图片读取失败，请换一张 JPG/PNG/WebP";
+        };
+        image.src = url;
+      }
+
+      document.getElementById("chooseBtn").addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", () => loadFile(fileInput.files[0]));
+
+      ["dragenter", "dragover"].forEach((name) => {
+        dropZone.addEventListener(name, (event) => {
+          event.preventDefault();
+          dropZone.classList.add("drag");
+        });
+      });
+      ["dragleave", "drop"].forEach((name) => {
+        dropZone.addEventListener(name, (event) => {
+          event.preventDefault();
+          dropZone.classList.remove("drag");
+        });
+      });
+      dropZone.addEventListener("drop", (event) => loadFile(event.dataTransfer.files[0]));
+
+      document.addEventListener("input", function (event) {
+        if (restoringState || event.target === fileInput) return;
+        if (!event.target.closest || !event.target.closest(".panel")) return;
+        scheduleSave();
+      }, true);
+      document.addEventListener("change", function (event) {
+        if (restoringState || event.target === fileInput) return;
+        if (!event.target.closest || !event.target.closest(".panel")) return;
+        scheduleSave();
+      }, true);
+      byId("saveBtn").addEventListener("click", function () {
+        if (saveTimer) {
+          clearTimeout(saveTimer);
+          saveTimer = null;
+        }
+        saveStateNow(true);
+      });
+      window.addEventListener("pagehide", function () {
+        if (restoringState || saveInFlight) return;
+        if (saveTimer) {
+          clearTimeout(saveTimer);
+          saveTimer = null;
+        }
+        saveStateNow(false);
+      });
+
+      byId("imageSharpen").addEventListener("input", function () {
+        byId("imageSharpenOut").textContent = byId("imageSharpen").value + "%";
+        baseRenderDirty = true;
+        if (sharpenTimer) clearTimeout(sharpenTimer);
+        sharpenTimer = setTimeout(function () {
+          sharpenTimer = null;
+          draw();
+        }, 120);
+      });
+      byId("imageSharpen").addEventListener("change", function () {
+        if (sharpenTimer) {
+          clearTimeout(sharpenTimer);
+          sharpenTimer = null;
+        }
+        baseRenderDirty = true;
+        draw();
+      });
+      document.querySelectorAll("[data-sharpen]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          byId("imageSharpen").value = button.getAttribute("data-sharpen");
+          byId("imageSharpen").dispatchEvent(new Event("input", { bubbles: true }));
+          byId("imageSharpen").dispatchEvent(new Event("change", { bubbles: true }));
+        });
+      });
+
+      byId("legacyOcrBtn").addEventListener("click", function () {
+        runLegacyOcr();
+      });
+      byId("legacySelectBtn").addEventListener("click", function () {
+        setLegacySelectMode(!legacySelectMode);
+      });
+      byId("legacyPixelAllBtn").addEventListener("click", extractAllLegacyPixels);
+      byId("legacyEraseAllBtn").addEventListener("click", extractAllLegacyItems);
+      byId("legacyClearBtn").addEventListener("click", function () {
+        resetLegacyItems(true);
+        scheduleSave();
+      });
+      byId("legacyPadding").addEventListener("input", function () {
+        byId("legacyPaddingOut").textContent = byId("legacyPadding").value + "px";
+        baseRenderDirty = true;
+        recolorTintDirty = true;
+        draw();
+      });
+      byId("legacyThreshold").addEventListener("input", function () {
+        byId("legacyThresholdOut").textContent = byId("legacyThreshold").value;
+        updatePickStatus("legacyStatus", "抠字灵敏度 " + byId("legacyThreshold").value + "；点行内“重新抠字”或“全部原样抠字”应用", "");
+      });
+      byId("legacyShowMarks").addEventListener("change", draw);
+
+      textIds.forEach((id) => byId(id).addEventListener("input", draw));
+      document.querySelectorAll("[data-clear]").forEach(function (button) {
+        button.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          const input = byId(button.getAttribute("data-clear"));
+          if (!input) return;
+          input.value = "";
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          draw();
+        });
+      });
+      colorIds.forEach((id) => byId(id).addEventListener("input", draw));
+      const bannerBgThemes = { banner1Bg: "banner1Theme", banner2Bg: "banner2Theme", banner3Bg: "banner3Theme" };
+      Object.keys(bannerBgThemes).forEach((bgId) => {
+        byId(bgId).addEventListener("input", () => {
+          const themeId = bannerBgThemes[bgId];
+          const value = byId(bgId).value.toLowerCase();
+          const preset = Object.keys(themeColors).find((key) => themeColors[key].toLowerCase() === value);
+          byId(themeId).value = preset || "custom";
+        });
+      });
+      rangeIds.forEach((id) => {
+        byId(id).addEventListener("input", () => {
+          syncRangeOutputs();
+          draw();
+        });
+      });
+      selectIds.forEach((id) =>
+        byId(id).addEventListener("change", () => {
+          if (id.endsWith("Theme")) {
+            const bgId = id.replace("Theme", "Bg");
+            const color = themeColors[byId(id).value];
+            if (color) byId(bgId).value = color;
+          }
+          draw();
+        })
+      );
+      showPoints.addEventListener("change", draw);
+
+      canvas.addEventListener("pointerdown", (event) => {
+        if (recolorMode || glowMode || legacySelectMode) return;
+        const point = canvasPoint(event);
+        const key = hitTest(point);
+        let nextDrag = null;
+        if (key) {
+          nextDrag = {
+            type: "text",
+            key,
+            startX: point.x,
+            startY: point.y,
+            originX: offsets[key].x,
+            originY: offsets[key].y,
+          };
+        } else {
+          const legacyItem = hitLegacyLayer(point);
+          if (!legacyItem) return;
+          selectLegacyItem(legacyItem.id);
+          nextDrag = {
+            type: "legacy",
+            id: legacyItem.id,
+            startX: point.x,
+            startY: point.y,
+            originX: legacyItem.x,
+            originY: legacyItem.y,
+          };
+        }
+        event.preventDefault();
+        try { canvas.setPointerCapture(event.pointerId); } catch { /* ignore */ }
+        drag = nextDrag;
+        canvas.style.cursor = "grabbing";
+      });
+
+      canvas.addEventListener("pointermove", (event) => {
+        if (recolorMode || glowMode || legacySelectMode) return;
+        const point = canvasPoint(event);
+        if (drag) {
+          if (drag.type === "legacy") {
+            const item = legacyItemById(drag.id);
+            if (!item) return;
+            item.x = clamp(drag.originX + (point.x - drag.startX), 0, canvas.width - item.w);
+            item.y = clamp(drag.originY + (point.y - drag.startY), 0, canvas.height - item.h);
+            draw();
+            return;
+          }
+          const base = baseBoxes[drag.key];
+          if (!base) return;
+          const nextX = clamp(drag.originX + (point.x - drag.startX), -base.x, canvas.width - (base.x + base.w));
+          const nextY = clamp(drag.originY + (point.y - drag.startY), -base.y, canvas.height - (base.y + base.h));
+          offsets[drag.key].x = nextX;
+          offsets[drag.key].y = nextY;
+          draw();
+          return;
+        }
+        canvas.style.cursor = hitTest(point) || hitLegacyLayer(point) ? "grab" : "default";
+      });
+
+      canvas.addEventListener("pointerup", endDrag);
+      canvas.addEventListener("pointercancel", endDrag);
+      canvas.addEventListener("pointerdown", handleRecolorPick);
+      canvas.addEventListener("pointerdown", handleGlowPick);
+      canvas.addEventListener("pointermove", moveGlowNode);
+      canvas.addEventListener("pointerup", endGlowNode);
+      canvas.addEventListener("pointercancel", endGlowNode);
+      canvas.addEventListener("pointerdown", startLegacySelect);
+      canvas.addEventListener("pointermove", moveLegacySelect);
+      canvas.addEventListener("pointerup", endLegacySelect);
+      canvas.addEventListener("pointercancel", endLegacySelect);
+
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        for (const [id, value] of Object.entries(DEFAULTS)) byId(id).value = value;
+        removeDynamicBanners();
+        syncRangeOutputs();
+        scheduleSave();
+        draw();
+      });
+
+      document.getElementById("resetPositionsBtn").addEventListener("click", () => {
+        for (const key of Object.keys(offsets)) {
+          offsets[key].x = 0;
+          offsets[key].y = 0;
+        }
+        scheduleSave();
+        draw();
+      });
+
+      document.getElementById("downloadBtn").addEventListener("click", () => {
+        canvas.toBlob((blob) => {
+          if (!blob) return;
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "主图-1440x1440.png";
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        }, "image/png");
+      });
+
+      byId("recolorModeBtn").addEventListener("click", function () {
+        setRecolorMode(!recolorMode);
+      });
+      byId("recolorColor").addEventListener("input", function () {
+        recolorTintDirty = true;
+        draw();
+      });
+      byId("recolorStrength").addEventListener("input", function () {
+        byId("recolorStrengthOut").textContent = byId("recolorStrength").value + "%";
+        draw();
+      });
+      byId("recolorTolerance").addEventListener("input", function () {
+        byId("recolorToleranceOut").textContent = byId("recolorTolerance").value;
+        if (!recolorSelections.length) return;
+        if (recolorRebuildTimer) clearTimeout(recolorRebuildTimer);
+        recolorRebuildTimer = setTimeout(function () {
+          recolorRebuildTimer = null;
+          rebuildRecolorMaskFromSelections(true);
+          draw();
+        }, 180);
+      });
+      byId("recolorFeather").addEventListener("input", function () {
+        byId("recolorFeatherOut").textContent = byId("recolorFeather").value + "px";
+        recolorTintDirty = true;
+        draw();
+      });
+      byId("recolorLight").addEventListener("input", function () {
+        byId("recolorLightOut").textContent = byId("recolorLight").value;
+        recolorTintDirty = true;
+        draw();
+      });
+      document.querySelectorAll("[data-recolor]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          byId("recolorColor").value = button.getAttribute("data-recolor");
+          recolorTintDirty = true;
+          scheduleSave();
+          draw();
+        });
+      });
+      byId("recolorUndoBtn").addEventListener("click", function () {
+        const removed = recolorSelections.pop();
+        rebuildRecolorMaskFromSelections(false);
+        updatePickStatus("recolorPickStatus", removed ? "已撤销上一次点选" : "没有可撤销的选区");
+        scheduleSave();
+        draw();
+      });
+      byId("recolorClearBtn").addEventListener("click", function () {
+        resetRecolorMask(true);
+        scheduleSave();
+        draw();
+      });
+      updateRecolorActions();
+      function syncGlowOutputs() {
+        byId("glowOpacityOut").textContent = byId("glowOpacity").value + "%";
+        byId("glowWidthOut").textContent = byId("glowWidth").value + "px";
+        byId("glowSpreadOut").textContent = byId("glowSpread").value + "px";
+        byId("glowIntensityOut").textContent = byId("glowIntensity").value + "%";
+      }
+      byId("glowModeBtn").addEventListener("click", function () {
+        setGlowMode(!glowMode);
+      });
+      byId("glowRefStyleBtn").addEventListener("click", function () {
+        byId("glowColor").value = "#c14dff";
+        byId("glowOpacity").value = "100";
+        byId("glowWidth").value = "2";
+        byId("glowSpread").value = "8";
+        byId("glowIntensity").value = "55";
+        syncGlowOutputs();
+        scheduleSave();
+        draw();
+      });
+      ["glowColor", "glowOpacity", "glowWidth", "glowSpread", "glowIntensity"].forEach(function (id) {
+        byId(id).addEventListener("input", function () {
+          syncGlowOutputs();
+          draw();
+        });
+      });
+      document.querySelectorAll("[data-glow]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          byId("glowColor").value = button.getAttribute("data-glow");
+          scheduleSave();
+          draw();
+        });
+      });
+      byId("glowFinishBtn").addEventListener("click", function () {
+        finishGlowLine(true);
+      });
+      byId("glowUndoBtn").addEventListener("click", function () {
+        if (glowCurrent.length) {
+          glowCurrent.pop();
+          updatePickStatus("glowPickStatus", glowCurrent.length ? "已撤销最后一个节点，还剩 " + glowCurrent.length + " 个" : "当前灯线已撤销，可重新点节点");
+        } else if (glowLines.length) {
+          glowLines.pop();
+          updatePickStatus("glowPickStatus", "已撤销上一条灯线");
+        } else {
+          updatePickStatus("glowPickStatus", "没有可撤销的灯线");
+        }
+        updateGlowActions();
+        scheduleSave();
+        draw();
+      });
+      byId("glowClearBtn").addEventListener("click", function () {
+        resetGlowLines(true);
+        scheduleSave();
+        draw();
+      });
+      syncGlowOutputs();
+      updateGlowActions();
+      function handleBannerEvent(event) {
+        const target = event.target;
+        const row = target.closest(".banner-row");
+        if (!row || !row.id) return;
+        const index = Number(row.id.replace("bannerRow", ""));
+        if (!index || index <= 3) return;
+        if (event.type === "input") {
+          if (target.type === "range") syncRangeOutputs();
+          if (target.id && target.id.slice(-2) === "Bg") {
+            const key = target.id.slice(0, -2);
+            const value = target.value.toLowerCase();
+            const preset = Object.keys(themeColors).find(function (themeKey) {
+              return themeColors[themeKey].toLowerCase() === value;
+            });
+            const themeSelect = byId(key + "Theme");
+            if (themeSelect) themeSelect.value = preset || "custom";
+          }
+          draw();
+        } else if (event.type === "change") {
+          if (target.id && target.id.slice(-5) === "Theme") {
+            const key = target.id.slice(0, -5);
+            const color = themeColors[target.value];
+            if (color) byId(key + "Bg").value = color;
+          }
+          draw();
+        }
+      }
+      const bannerList = byId("bannerList");
+      if (bannerList) {
+        bannerList.addEventListener("input", handleBannerEvent);
+        bannerList.addEventListener("change", handleBannerEvent);
+        bannerList.addEventListener("click", function (event) {
+          const button = event.target.closest("[data-clear]");
+          if (!button) return;
+          event.preventDefault();
+          event.stopPropagation();
+          const input = byId(button.getAttribute("data-clear"));
+          if (!input) return;
+          input.value = "";
+          draw();
+        });
+      }
+      function updateBannerActions() {
+        const hint = byId("bannerCountHint");
+        if (hint) hint.textContent = "当前 " + bannerCount + " 条 / 最多 " + MAX_BANNERS + " 条";
+        const addButton = byId("addBannerBtn");
+        if (addButton) addButton.disabled = bannerCount >= MAX_BANNERS;
+        const removeButton = byId("removeBannerBtn");
+        if (removeButton) removeButton.disabled = bannerCount <= 3;
+      }
+      function addBannerRow(silent = false) {
+        if (bannerCount >= MAX_BANNERS) return;
+        const nextIndex = bannerCount + 1;
+        const source = byId("bannerRow" + bannerCount);
+        if (!source) return;
+        const holder = document.createElement("div");
+        holder.innerHTML = source.outerHTML;
+        const row = holder.firstElementChild;
+        if (!row) return;
+        row.id = "bannerRow" + nextIndex;
+        row.innerHTML = row.innerHTML.replace(new RegExp("banner" + bannerCount, "g"), "banner" + nextIndex);
+        const textInput = row.querySelector("input[type=text]");
+        if (textInput) {
+          textInput.value = "";
+          textInput.removeAttribute("value");
+          textInput.placeholder = "横幅文字（留空隐藏）";
+        }
+        const styleSelect = row.querySelector("select[id$=Style]");
+        if (styleSelect) styleSelect.value = "bar";
+        const themeSelect = row.querySelector("select[id$=Theme]");
+        if (themeSelect) {
+          const themeKey = nextIndex % 3 === 1 ? "maroon" : nextIndex % 3 === 2 ? "black" : "gold";
+          themeSelect.value = themeKey;
+          const bgInput = row.querySelector("input[id$=Bg]");
+          if (bgInput) bgInput.value = themeColors[themeKey];
+        }
+        const textColor = row.querySelector("input[id$=TextColor]");
+        if (textColor) textColor.value = "#ffffff";
+        row.querySelectorAll("input[type=range]").forEach(function (input) {
+          input.value = "100";
+          const output = row.querySelector("output[id=" + "" + input.id + "Out" + "" + "]");
+          if (output) output.textContent = "100%";
+        });
+        source.insertAdjacentElement("afterend", row);
+        bannerCount = nextIndex;
+        offsets["banner" + bannerCount] = { x: 0, y: 0 };
+        updateBannerActions();
+        if (!silent) {
+          scheduleSave();
+          draw();
+        }
+      }
+      function removeLastBanner(silent = false) {
+        if (bannerCount <= 3) return;
+        const row = byId("bannerRow" + bannerCount);
+        if (row) row.remove();
+        delete offsets["banner" + bannerCount];
+        bannerCount -= 1;
+        updateBannerActions();
+        if (!silent) {
+          scheduleSave();
+          draw();
+        }
+      }
+      function removeDynamicBanners() {
+        while (bannerCount > 3) {
+          const row = byId("bannerRow" + bannerCount);
+          if (row) row.remove();
+          delete offsets["banner" + bannerCount];
+          bannerCount -= 1;
+        }
+        updateBannerActions();
+      }
+      document.getElementById("addBannerBtn").addEventListener("click", () => addBannerRow());
+      document.getElementById("removeBannerBtn").addEventListener("click", () => removeLastBanner());
+      updateBannerActions();
+      renderLegacyList();
+      updateLegacyButtons();
+      restoreSavedState();
+    </script>
+  </body>
+</html>

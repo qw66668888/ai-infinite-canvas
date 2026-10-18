@@ -1,13 +1,15 @@
-{
+﻿{
   "name": "ai-infinite-canvas",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.5.0",
   "type": "module",
-  "description": "Open-source AI node workflow canvas for image-to-image generation with Volcengine Seedream/SeedEdit.",
+  "description": "Open-source AI node workflow canvas for image generation and Seedance video with Volcengine Ark.",
   "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:native": "node scripts/clean-native.mjs && tsc -p tsconfig.native.json && node scripts/build-native.mjs",
+    "start:static": "node serve.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -20,5 +22,14 @@
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.6.3",
     "vite": "^6.0.5"
+  },
+  "author": "qw66668888",
+  "homepage": "https://github.com/qw66668888/ai-infinite-canvas#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qw66668888/ai-infinite-canvas.git"
+  },
+  "bugs": {
+    "url": "https://github.com/qw66668888/ai-infinite-canvas/issues"
   }
 }
